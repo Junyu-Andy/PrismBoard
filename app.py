@@ -240,6 +240,14 @@ def _main_panel(ctx: dict):
         _render_spec_with_controls(spec, ctx)
 
 
+def _store_spec(spec: dict):
+    """Push the current spec into previous_spec so the next render can diff."""
+    if st.session_state.get("last_spec") is not None:
+        st.session_state["previous_spec"] = st.session_state["last_spec"]
+    st.session_state["last_spec"] = spec
+    st.session_state["last_safety_class"] = None
+
+
 def _generate_and_store(ctx: dict, query: str):
     ctx_kwargs = _build_ctx_kwargs(ctx)
     spec = None
@@ -261,13 +269,12 @@ def _generate_and_store(ctx: dict, query: str):
             else:
                 st.error(f"LLM call failed and no cached fallback exists: {e}")
                 return
-    st.session_state["last_spec"] = spec
-    # Clear any lingering patient-side safety card state.
-    st.session_state["last_safety_class"] = None
+    _store_spec(spec)
 
 
 def _render_spec_with_controls(spec: dict, ctx: dict):
-    renderer.render_spec(spec, ctx)
+    renderer.render_spec(spec, ctx,
+                         previous_spec=st.session_state.get("previous_spec"))
     st.divider()
 
     # Doctor-only granularity buttons
@@ -303,7 +310,7 @@ def _render_spec_with_controls(spec: dict, ctx: dict):
     with st.expander("Step back: edit the dashboard spec"):
         edited = renderer.render_spec_editor(spec)
         if st.button("Re-render edited spec", key="rerender_spec"):
-            st.session_state["last_spec"] = edited
+            _store_spec(edited)
             st.rerun()
 
 
@@ -320,7 +327,7 @@ def _deepen(ctx: dict, spec: dict, direction: str):
         except Exception as e:
             st.error(f"Deepen failed: {e}")
             return
-    st.session_state["last_spec"] = new_spec
+    _store_spec(new_spec)
 
 
 def _drilldown(ctx: dict, spec: dict, entity_type: str,
@@ -339,7 +346,7 @@ def _drilldown(ctx: dict, spec: dict, entity_type: str,
         except Exception as e:
             st.error(f"Drilldown failed: {e}")
             return
-    st.session_state["last_spec"] = new_spec
+    _store_spec(new_spec)
 
 
 def main():

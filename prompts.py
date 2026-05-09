@@ -57,8 +57,20 @@ nurses(id, name, level, current_shift)
 # Output contract
 Always call the tool `generate_dashboard` with these fields:
   intent              one-sentence restatement of the user's intent (English)
+  intent_understood   second-person paraphrase of what you think the user wants
+                      (e.g. "You want to see how Wang Wei has recovered in the
+                      last 24 hours."). More conversational than `intent`.
   reasoning           2-3 sentences in English explaining why these components were chosen
   layout              array of 3-5 components - prefer fewer, never more than 5
+                      Component titles must be stable: when you deepen or drill
+                      into a previous spec, keep matching component titles
+                      identical so the user can see what changed.
+  rejected_options    1-3 components you considered but chose NOT to include.
+                      Each entry is {type, reason}. Be honest about trade-offs;
+                      this is how the user knows you actually deliberated.
+                      Example: [{"type": "scatter",
+                                 "reason": "Cross-vital correlation is too
+                                 academic for a bedside round."}]
   drill_targets       list of fields the user can click to drill into
                       (e.g. patient_id, task_id, lab_panel, drug_name)
   granularity_options three short English labels for deepening directions
@@ -241,7 +253,31 @@ GENERATE_DASHBOARD_TOOL = {
             "type": "object",
             "properties": {
                 "intent": {"type": "string"},
+                "intent_understood": {
+                    "type": "string",
+                    "description": (
+                        "Second-person paraphrase of the user's intent, more "
+                        "conversational than `intent`."
+                    ),
+                },
                 "reasoning": {"type": "string"},
+                "rejected_options": {
+                    "type": "array",
+                    "description": (
+                        "1-3 components you considered but did not include, "
+                        "each with a one-sentence reason."
+                    ),
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type":   {"type": "string"},
+                            "reason": {"type": "string"},
+                        },
+                        "required": ["type", "reason"],
+                    },
+                    "minItems": 1,
+                    "maxItems": 3,
+                },
                 "layout": {
                     "type": "array",
                     "items": {
@@ -272,8 +308,9 @@ GENERATE_DASHBOARD_TOOL = {
                 },
             },
             "required": [
-                "intent", "reasoning", "layout",
-                "drill_targets", "granularity_options",
+                "intent", "intent_understood",
+                "reasoning", "rejected_options",
+                "layout", "drill_targets", "granularity_options",
             ],
         },
     },

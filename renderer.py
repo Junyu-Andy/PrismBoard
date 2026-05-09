@@ -252,7 +252,8 @@ PRIMITIVES = {
 }
 
 
-def render_component(component: dict, role_ctx: dict):
+def render_component(component: dict, role_ctx: dict,
+                     diff_status: str = "initial"):
     ctype = component.get("type")
     fn = PRIMITIVES.get(ctype)
     if fn is None:
@@ -262,32 +263,128 @@ def render_component(component: dict, role_ctx: dict):
     fn(component, df, role_ctx)
 
 
-def render_spec(spec: dict, role_ctx: dict):
-    """Render the full spec (intent + reasoning + components)."""
-    intent = spec.get("intent", "")
+# ---------------------------------------------------------------- agentic-UI add-ons
+DIFF_BADGE = {
+    "new":       "&nbsp;<span style='color:#16a34a;font-size:0.8em'>New</span>",
+    "modified":  "&nbsp;<span style='color:#eab308;font-size:0.8em'>Updated</span>",
+    "unchanged": "",
+    "initial":   "",
+}
+
+
+def render_reasoning_panel(spec: dict):
+    """Top-of-board collapsible 'How the AI thought about this' card."""
+    intent_u  = spec.get("intent_understood") or spec.get("intent", "")
     reasoning = spec.get("reasoning", "")
+    layout    = spec.get("layout", []) or []
+    rejected  = spec.get("rejected_options", []) or []
+
+    with st.expander("How the AI thought about this", expanded=False):
+        if intent_u:
+            st.markdown(f"**What I understood you want:** {intent_u}")
+        if reasoning:
+            st.markdown(
+                f"**Why I picked these {len(layout)} component(s):** {reasoning}"
+            )
+        if rejected:
+            st.markdown("**What I considered but did NOT include:**")
+            for r in rejected:
+                st.markdown(
+                    f"- `{r.get('type','?')}` - {r.get('reason','(no reason given)')}"
+                )
+        if not (intent_u or reasoning or rejected):
+            st.caption("(The model did not produce reasoning fields.)")
+
+
+def compute_spec_diff(old_spec: dict | None, new_spec: dict) -> dict:
+    """Diff two specs by component title. Returns:
+
+      {
+        "per_component": {idx: 'new'|'modified'|'unchanged'|'initial'},
+        "removed":       [titles_dropped_from_old_spec],
+        "is_initial":    bool,
+      }
+    """
+    new_layout = new_spec.get("layout", []) or []
+    if old_spec is None:
+        return {
+            "per_component": {i: "initial" for i in range(len(new_layout))},
+            "removed":       [],
+            "is_initial":    True,
+        }
+    old_by_title = {c.get("title", f"_idx{i}"): c
+                    for i, c in enumerate(old_spec.get("layout", []) or [])}
+    per_component = {}
+    for i, c in enumerate(new_layout):
+        title = c.get("title", f"_idx{i}")
+        if title not in old_by_title:
+            per_component[i] = "new"
+        elif c != old_by_title[title]:
+            per_component[i] = "modified"
+        else:
+            per_component[i] = "unchanged"
+    new_titles = {c.get("title", f"_idx{i}") for i, c in enumerate(new_layout)}
+    removed = [t for t in old_by_title if t not in new_titles]
+    return {
+        "per_component": per_component,
+        "removed":       removed,
+        "is_initial":    False,
+    }
+
+
+def _render_diff_summary(diff: dict):
+    if diff["is_initial"]:
+        return
+    new_n = sum(1 for v in diff["per_component"].values() if v == "new")
+    mod_n = sum(1 for v in diff["per_component"].values() if v == "modified")
+    rem_n = len(diff["removed"])
+    if new_n + mod_n + rem_n == 0:
+        st.caption("This update did not change any component.")
+        return
+    st.info(
+        f"This update: {new_n} new, {mod_n} updated, {rem_n} removed."
+    )
+    if diff["removed"]:
+        st.caption("Removed: " + ", ".join(diff["removed"]))
+
+
+def render_spec(spec: dict, role_ctx: dict,
+                previous_spec: dict | None = None):
+    """Render the full spec.
+
+    Adds two agentic-UI affordances:
+      - top reasoning panel ('how the AI thought about this')
+      - per-component diff badges + a top toast comparing to previous_spec
+    """
     layout = spec.get("layout", []) or []
 
-    if intent:
-        st.markdown(f"**Intent:** {intent}")
-    if reasoning:
-        st.caption(f"Why this view: {reasoning}")
+    # Diff vs. previous spec (None => initial render, no badges).
+    diff = compute_spec_diff(previous_spec, spec)
+    _render_diff_summary(diff)
 
-    # Two-column layout if 4+ components, single column otherwise
+    render_reasoning_panel(spec)
+    st.divider()
+
+    def _heading(comp, idx):
+        badge = DIFF_BADGE.get(diff["per_component"].get(idx, "initial"), "")
+        title = comp.get("title", "")
+        if title:
+            st.markdown(f"##### {title}{badge}", unsafe_allow_html=True)
+
     if len(layout) >= 4:
         cols = st.columns(2)
         for i, comp in enumerate(layout):
             with cols[i % 2]:
                 with st.container(border=True):
-                    if comp.get("title"):
-                        st.markdown(f"##### {comp['title']}")
-                    render_component(comp, role_ctx)
+                    _heading(comp, i)
+                    render_component(comp, role_ctx,
+                                     diff_status=diff["per_component"].get(i, "initial"))
     else:
-        for comp in layout:
+        for i, comp in enumerate(layout):
             with st.container(border=True):
-                if comp.get("title"):
-                    st.markdown(f"##### {comp['title']}")
-                render_component(comp, role_ctx)
+                _heading(comp, i)
+                render_component(comp, role_ctx,
+                                 diff_status=diff["per_component"].get(i, "initial"))
 
 
 # ---------------------------------------------------------------- spec editor
