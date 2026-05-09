@@ -163,7 +163,7 @@ def safe_execute(
 
 # --------------------------------------------------------------------- helpers used by UI
 def list_patients() -> pd.DataFrame:
-    return get_conn().execute("SELECT * FROM patients ORDER BY id").df()
+    return get_conn().execute("SELECT * FROM patients ORDER BY patient_id").df()
 
 
 def list_doctors() -> pd.DataFrame:
