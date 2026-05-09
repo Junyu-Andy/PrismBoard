@@ -16,12 +16,12 @@
 
 ## 1 · Hospital information is broken — in four different ways
 
-|  | Role | Pain |
-|---|---|---|
-| 🩺 | **Doctor** | **Drowning in data.** Two hours of paperwork for every one hour with patients. |
-| 👩‍⚕️ | **Nurse** | **Lost at handoff.** 80 % of serious medical errors involve handoff communication *(Joint Commission)*. |
-| ⭐ | **Patient** | **Information vacuum.** Five minutes a day with the doctor. Twenty-three hours alone with the anxiety. |
-| 👨‍👩‍👧 | **Family** | **Phone tag.** Missed calls → worry → calls flood the nurse station. |
+| Role | Pain |
+|---|---|
+| 🩺 **Doctor** | **Drowning in data.** Two hours of paperwork for every one hour with patients. |
+| 👩‍⚕️ **Nurse** | **Lost at handoff.** 80 % of serious medical errors involve handoff communication *(Joint Commission)*. |
+| ⭐ **Patient** | **Information vacuum.** Five minutes a day with the doctor. Twenty-three hours alone with the anxiety. |
+| 👨‍👩‍👧 **Family** | **Phone tag.** Missed calls → worry → calls flood the nurse station. |
 
 > Most medical AI helps the doctor. **Nobody is serving the other three.**
 
@@ -153,12 +153,10 @@ all update — automatically, in sync, across views.
 
 If you're building **agentic interfaces**, **healthcare AI**, or **generative UI** — let's talk.
 
-| | |
-|---|---|
-| **Name** | Junyu Zhao (Andy) |
-| **Email** | [zhaojyxs@gmail.com](mailto:zhaojyxs@gmail.com) |
-| **WhatsApp** | +60919592 |
-| **𝕏** | [@realAndyZhao](https://x.com/realAndyZhao) |
+- **Name** — Junyu Zhao (Andy)
+- **Email** — [zhaojyxs@gmail.com](mailto:zhaojyxs@gmail.com)
+- **WhatsApp** — +60919592
+- **𝕏** — [@realAndyZhao](https://x.com/realAndyZhao)
 
 > *One-line summary, if anyone asks:*
 > **The agent is a prism, not a renderer — and it knows what it shouldn't refract.**

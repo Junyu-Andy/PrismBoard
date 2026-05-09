@@ -19,7 +19,7 @@ different language, and different boundaries.
 
 ## Three patterns this project is claiming as new
 
-| | |
+| Pattern | What it means |
 |---|---|
 | **Refraction** | One truth → many UIs. The agent is a *prism*, not a renderer. It splits one patient state into role-specific views in real time. |
 | **Cognitive recasting** | Same fact → different language. Doctors see numbers; patients see plain words; family sees reassurance. Not permission filtering — semantic translation. |
@@ -138,7 +138,7 @@ docs/             slides.md (GitHub-renderable deck) · slides.slidev.md (Slidev
 
 ## Tech stack
 
-| | |
+| Layer | Choice |
 |---|---|
 | LLM | **DeepSeek V3** via OpenAI-compatible SDK — one-line swap to Claude/GPT (`base_url`). Set `DEEPSEEK_MODEL` env var to try alternatives. |
 | Frontend | Streamlit ≥ 1.32 + Plotly subplots |
@@ -149,7 +149,7 @@ docs/             slides.md (GitHub-renderable deck) · slides.slidev.md (Slidev
 
 ## Two patients drive the differentiation argument
 
-| | Wang Wei (P001) | Li Xiuying (P002) |
+| Aspect | Wang Wei (P001) | Li Xiuying (P002) |
 |---|---|---|
 | Profile | 32 M, athlete, no comorbidities | 71 F, DM2 + AF + prior MI + mild CKD |
 | Surgery | ORIF tibial plateau (Mon afternoon) | Total hip arthroplasty (Mon afternoon) |
