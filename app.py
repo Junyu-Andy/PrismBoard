@@ -297,29 +297,57 @@ def _render_spec_with_controls(spec: dict, ctx: dict):
                          previous_spec=st.session_state.get("previous_spec"))
     st.divider()
 
-    # Doctor-only "Refine view" buttons (formerly Deepen).
-    # These re-shape the SAME view: change time window, swap dimension,
-    # surface anomalies. They do NOT navigate to a different entity.
+    # Doctor-only "Adjust view" controls. Two clearly-grouped dimensions
+    # (time window + information dimension) so the user sees the axes of
+    # adjustment, instead of a flat row of LLM-generated button labels.
     if ctx["role"] == "doctor":
-        opts = spec.get("granularity_options") or []
-        if opts:
-            st.markdown("##### Refine view")
-            st.caption(
-                "Change the time window, switch dimension (vitals / labs / "
-                "meds), or focus on anomalies."
-            )
-            cols = st.columns(len(opts))
-            for i, opt in enumerate(opts):
-                with cols[i]:
-                    if st.button(opt, key=f"deepen_{i}"):
-                        _deepen(ctx, spec, opt)
-                        st.rerun()
+        st.markdown("##### Adjust view")
+        st.caption(
+            "Reshape this dashboard along two dimensions. You can always "
+            "re-type your question above instead - the buttons are just faster."
+        )
 
-    # Drilldown ("Focus on a specific item"): pick an entity and rebuild
-    # the dashboard around it.
+        # Time window dimension
+        st.markdown("**Time window**")
+        time_opts = [
+            ("Last 2 hours",  "Time resolution -> 2h"),
+            ("Last 24 hours", "Time resolution -> 24h"),
+            ("5 days",        "Time resolution -> 5d"),
+        ]
+        tcols = st.columns(len(time_opts))
+        for i, (label, direction) in enumerate(time_opts):
+            with tcols[i]:
+                if st.button(label, key=f"time_{i}",
+                             use_container_width=True):
+                    _deepen(ctx, spec, direction); st.rerun()
+
+        # Information dimension
+        st.markdown("**Information**")
+        info_opts = [
+            ("Vitals",         "Information -> vitals"),
+            ("Labs",           "Information -> labs"),
+            ("Medications",    "Information -> medications"),
+            ("Find anomalies", "Find anomalies"),
+        ]
+        icols = st.columns(len(info_opts))
+        for i, (label, direction) in enumerate(info_opts):
+            with icols[i]:
+                if st.button(label, key=f"info_{i}",
+                             use_container_width=True):
+                    _deepen(ctx, spec, direction); st.rerun()
+
+        # Surface the AI's own suggestion as a hint, but don't make it
+        # the primary affordance.
+        ai_opts = spec.get("granularity_options") or []
+        if ai_opts:
+            st.caption("AI suggestion: " + " · ".join(ai_opts))
+        st.write("")  # breathing space
+
+    # Drilldown ("Focus on..."): pick an entity and rebuild the dashboard
+    # around it.
     targets = spec.get("drill_targets") or []
     if targets:
-        st.markdown("##### Focus on a specific item")
+        st.markdown("##### Focus on...")
         st.caption(
             "Pick a field (e.g. patient_id, lab_panel, drug_name) and a "
             "value to refocus the whole dashboard on that one entity."

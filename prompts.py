@@ -211,16 +211,20 @@ Current spec (JSON):
 {current_spec_json}
 
 Apply these deepening rules where relevant:
-- "Time resolution -> 24h": change vital_trajectory time_window from '5d' to
-  '24h', and add a 24-hour window filter to other time-series queries.
-- "Time resolution -> 2h": change time_window to '2h' and overlay event
-  markers (medication, rounds, repositioning).
-- "Information -> labs": replace vitals components with lab_results table +
-  abnormal-value distribution.
-- "Information -> medications": replace with a medication schedule table +
-  an administration-rate metric_card.
-- "Find anomalies": filter using abnormal_flag or threshold expressions and
-  highlight outliers via distribution.
+- "Time resolution -> 5d":  set vital_trajectory time_window to '5d' and
+  expand other time-series queries to a 5-day window.
+- "Time resolution -> 24h": set time_window to '24h' and add a 24-hour
+  window filter to other time-series queries.
+- "Time resolution -> 2h":  set time_window to '2h' and overlay event
+  markers (medication administration, rounds, repositioning).
+- "Information -> vitals":  make vital_trajectory the primary panel; add a
+  metric_card for any out-of-range vital.
+- "Information -> labs":    replace vitals components with a lab_results
+  table + an abnormal-value distribution.
+- "Information -> medications": replace with a medication schedule table
+  + an administration-rate metric_card.
+- "Find anomalies":         filter using abnormal_flag or threshold
+  expressions and highlight outliers via distribution.
 - "Decompose by organ system": split vitals into cardiac (HR/BP),
   respiratory (SpO2/RR), and metabolic (temp/glucose) groups side by side.
 
