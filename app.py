@@ -277,11 +277,17 @@ def _render_spec_with_controls(spec: dict, ctx: dict):
                          previous_spec=st.session_state.get("previous_spec"))
     st.divider()
 
-    # Doctor-only granularity buttons
+    # Doctor-only "Refine view" buttons (formerly Deepen).
+    # These re-shape the SAME view: change time window, swap dimension,
+    # surface anomalies. They do NOT navigate to a different entity.
     if ctx["role"] == "doctor":
         opts = spec.get("granularity_options") or []
         if opts:
-            st.markdown("##### Deepen the view")
+            st.markdown("##### Refine view")
+            st.caption(
+                "Change the time window, switch dimension (vitals / labs / "
+                "meds), or focus on anomalies."
+            )
             cols = st.columns(len(opts))
             for i, opt in enumerate(opts):
                 with cols[i]:
@@ -289,10 +295,15 @@ def _render_spec_with_controls(spec: dict, ctx: dict):
                         _deepen(ctx, spec, opt)
                         st.rerun()
 
-    # Drilldown selector
+    # Drilldown ("Focus on a specific item"): pick an entity and rebuild
+    # the dashboard around it.
     targets = spec.get("drill_targets") or []
     if targets:
-        st.markdown("##### Drill down")
+        st.markdown("##### Focus on a specific item")
+        st.caption(
+            "Pick a field (e.g. patient_id, lab_panel, drug_name) and a "
+            "value to refocus the whole dashboard on that one entity."
+        )
         cols = st.columns([2, 3, 3, 1])
         with cols[0]:
             entity_type = st.selectbox("Field", targets, key="drill_field")
@@ -301,7 +312,7 @@ def _render_spec_with_controls(spec: dict, ctx: dict):
         with cols[2]:
             entity_label = st.text_input("Label (optional)", key="drill_label")
         with cols[3]:
-            if st.button("Drill", key="drill_btn") and entity_id:
+            if st.button("Focus", key="drill_btn") and entity_id:
                 _drilldown(ctx, spec, entity_type, entity_id,
                            entity_label or entity_id)
                 st.rerun()
@@ -361,6 +372,17 @@ def main():
         st.stop()
 
     ctx = _sidebar()
+
+    # If the role / patient / actor identity changed, drop everything that
+    # was rendered for the previous context.
+    sig = (ctx["role"], ctx["patient_id"], ctx.get("actor_id"))
+    if st.session_state.get("_ctx_sig") != sig:
+        st.session_state["_ctx_sig"] = sig
+        for k in ("last_spec", "previous_spec",
+                  "last_safety_class", "last_safety_question",
+                  "last_classification", "nl_query"):
+            st.session_state.pop(k, None)
+
     _header(ctx)
     st.divider()
     _main_panel(ctx)

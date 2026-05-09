@@ -138,8 +138,11 @@ def safe_execute(
             f"Role '{role}' may not query: {', '.join(sorted(bad_tbl))}"
         )
 
-    # Patient / family must scope to their own patient_id.
-    if role in ("patient", "family"):
+    # Patient / family must scope to their own patient_id - UNLESS the query
+    # is a pure literal SELECT (no known table referenced). LLM-generated
+    # placeholder queries like SELECT 'summary' AS info are common for
+    # text_summary components that already carry their content inline.
+    if role in ("patient", "family") and refs:
         if not patient_id:
             raise SqlSafetyError(f"Role '{role}' requires a patient_id binding.")
         if str(patient_id) not in query:

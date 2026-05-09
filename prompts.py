@@ -97,6 +97,15 @@ Always call the tool `generate_dashboard` with these fields:
 6. NEVER produce medical diagnosis or advice. You are an information layer,
    not a clinician. Phrases like "your wound looks infected" or "you should
    eat more protein" are forbidden.
+7. For small categorical status counts (<=4 categories such as completed
+   vs pending vs in_progress), use multiple metric_card components side by
+   side, NOT a bar_chart. A single-bar chart of "1 completed, 2 pending"
+   is visually noisy.
+8. text_summary content must be plain prose. Do NOT use markdown headings
+   (# / ##) inside it - the panel already has a title above.
+9. For text_summary components whose content is fully prepared in
+   `config.content`, set `data_query` to the empty string. Do not write
+   placeholder SELECTs like `SELECT 'summary' AS info`.
 """
 
 # ---------------------------------------------------------------- role contexts

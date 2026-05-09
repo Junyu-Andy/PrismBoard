@@ -46,8 +46,9 @@ def _run_query(query: str, role_ctx: dict) -> Optional[pd.DataFrame]:
             patient_id=role_ctx["patient_id"],
         )
     except data.SqlSafetyError as e:
-        st.error(f"SQL guard blocked the query: {e}")
-        st.code(query, language="sql")
+        st.warning(f"This panel could not load: {e}")
+        with st.expander("Show the query that was blocked"):
+            st.code(query, language="sql")
         return None
 
 
@@ -70,18 +71,6 @@ def _render_metric_card(component, df, role_ctx):
         )
 
 
-def _render_bar_chart(component, df, role_ctx):
-    cfg = component.get("config", {})
-    if df is None or df.empty:
-        st.info("No data.")
-        return
-    x = cfg.get("x") or df.columns[0]
-    y = cfg.get("y") or df.columns[-1]
-    fig = px.bar(df, x=x, y=y, title=component.get("title"))
-    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10), height=320)
-    st.plotly_chart(fig, use_container_width=True)
-
-
 def _render_line_chart(component, df, role_ctx):
     cfg = component.get("config", {})
     if df is None or df.empty:
@@ -90,9 +79,22 @@ def _render_line_chart(component, df, role_ctx):
     x = cfg.get("x") or df.columns[0]
     y = cfg.get("y") or df.columns[-1]
     group_by = cfg.get("group_by")
-    fig = px.line(df, x=x, y=y, color=group_by, title=component.get("title"),
-                  markers=True)
-    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10), height=320)
+    fig = px.line(df, x=x, y=y, color=group_by, title=None, markers=True)
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
+    if pd.api.types.is_datetime64_any_dtype(df[x]) or "_at" in str(x) or "date" in str(x):
+        fig.update_xaxes(tickformat="%a %H:%M", tickangle=-30, nticks=6)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def _render_bar_chart(component, df, role_ctx):
+    cfg = component.get("config", {})
+    if df is None or df.empty:
+        st.info("No data.")
+        return
+    x = cfg.get("x") or df.columns[0]
+    y = cfg.get("y") or df.columns[-1]
+    fig = px.bar(df, x=x, y=y, title=None)
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -149,11 +151,21 @@ def _render_distribution(component, df, role_ctx):
 
 
 def _render_text_summary(component, df, role_ctx):
+    import re as _re
     cfg = component.get("config", {})
     body = cfg.get("content")
     if not body and df is not None and not df.empty:
-        body = df.iloc[0, 0]
-    st.markdown(body or "_(no content)_")
+        body = str(df.iloc[0, 0])
+    if not body:
+        st.markdown("_(no content)_")
+        return
+    # Strip leading markdown header markers so the LLM cannot blow up the
+    # font by writing "## Foo" inside a panel that already has a title.
+    body = _re.sub(r"^#+\s+", "", body, flags=_re.M)
+    st.markdown(
+        f"<div style='font-size:0.95rem;line-height:1.55'>{body}</div>",
+        unsafe_allow_html=True,
+    )
 
 
 def _render_vital_trajectory(component, df, role_ctx):
@@ -232,9 +244,10 @@ def _render_vital_trajectory(component, df, role_ctx):
                     row=r, col=c,
                 )
     fig.update_layout(
-        height=240 * rows, margin=dict(l=10, r=10, t=40, b=10),
-        title=component.get("title"),
+        height=300 * rows, margin=dict(l=10, r=10, t=40, b=30),
+        title=None,  # title is already shown above the container
     )
+    fig.update_xaxes(tickformat="%a %H:%M", tickangle=-30, nticks=8)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -339,11 +352,13 @@ def _render_diff_summary(diff: dict):
     mod_n = sum(1 for v in diff["per_component"].values() if v == "modified")
     rem_n = len(diff["removed"])
     if new_n + mod_n + rem_n == 0:
-        st.caption("This update did not change any component.")
+        st.caption("Refined - no panels changed.")
         return
-    st.info(
-        f"This update: {new_n} new, {mod_n} updated, {rem_n} removed."
-    )
+    bits = []
+    if new_n: bits.append(f"{new_n} added")
+    if mod_n: bits.append(f"{mod_n} changed")
+    if rem_n: bits.append(f"{rem_n} removed")
+    st.caption("Refined - " + ", ".join(bits))
     if diff["removed"]:
         st.caption("Removed: " + ", ".join(diff["removed"]))
 
@@ -371,20 +386,42 @@ def render_spec(spec: dict, role_ctx: dict,
         if title:
             st.markdown(f"##### {title}{badge}", unsafe_allow_html=True)
 
-    if len(layout) >= 4:
-        cols = st.columns(2)
-        for i, comp in enumerate(layout):
-            with cols[i % 2]:
-                with st.container(border=True):
-                    _heading(comp, i)
-                    render_component(comp, role_ctx,
-                                     diff_status=diff["per_component"].get(i, "initial"))
-    else:
-        for i, comp in enumerate(layout):
-            with st.container(border=True):
-                _heading(comp, i)
-                render_component(comp, role_ctx,
-                                 diff_status=diff["per_component"].get(i, "initial"))
+    def _render_one(comp, idx):
+        with st.container(border=True):
+            _heading(comp, idx)
+            render_component(
+                comp, role_ctx,
+                diff_status=diff["per_component"].get(idx, "initial"),
+            )
+
+    # Layout rule:
+    #   - if any vital_trajectory exists, the FIRST one is full-width hero;
+    #   - otherwise, the first component is hero (full-width);
+    #   - everything else flows in 2 columns underneath.
+    hero_idx = None
+    for i, comp in enumerate(layout):
+        if comp.get("type") == "vital_trajectory":
+            hero_idx = i
+            break
+    if hero_idx is None and layout:
+        hero_idx = 0
+
+    if hero_idx is not None:
+        _render_one(layout[hero_idx], hero_idx)
+
+    rest = [(i, c) for i, c in enumerate(layout) if i != hero_idx]
+    if rest:
+        # Promote text_summary to full-width too - they read badly in 2-col.
+        full_width_types = {"text_summary"}
+        single = [(i, c) for i, c in rest if c.get("type") in full_width_types]
+        twocol = [(i, c) for i, c in rest if c.get("type") not in full_width_types]
+        for i, comp in single:
+            _render_one(comp, i)
+        if twocol:
+            cols = st.columns(2)
+            for n, (i, comp) in enumerate(twocol):
+                with cols[n % 2]:
+                    _render_one(comp, i)
 
 
 # ---------------------------------------------------------------- spec editor
