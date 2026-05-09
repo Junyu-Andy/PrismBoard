@@ -19,7 +19,7 @@ fonts:
 
 <div class="flex flex-col items-center justify-center h-full pb-20">
 
-<img src="/prisma-hero.png" class="max-h-[55vh] object-contain" />
+<img src="./images/prisma-hero.png" class="max-h-[55vh] object-contain" />
 
 <p class="text-xl opacity-80 mt-5">One truth. Four views.<br/>Made for this person, right now.</p>
 
@@ -356,7 +356,7 @@ class: text-center
 
 <div class="flex flex-col items-center justify-center h-full">
 
-<img src="/prisma-closing.png" class="max-h-[40vh] object-contain mb-8" />
+<img src="./images/prisma-closing.png" class="max-h-[40vh] object-contain mb-8" />
 
 <h1 class="!text-5xl !mb-3">Open to collab</h1>
 
