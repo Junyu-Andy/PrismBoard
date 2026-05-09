@@ -130,6 +130,28 @@ Examples:
 9. For text_summary components whose content is fully prepared in
    `config.content`, set `data_query` to the empty string. Do not write
    placeholder SELECTs like `SELECT 'summary' AS info`.
+
+# Concrete-content rule (CRITICAL - this is the most common failure)
+Every panel must show real information drawn from the seeded tables.
+Forbidden lazy patterns:
+  - SELECT 'query result' AS msg
+  - SELECT 'TBD' AS info
+  - config.content = "Summary will appear here"
+  - text_summary with vague filler ("everything is fine")
+  - metric_card with config.value = "query result"
+
+Good text_summary content references concrete facts derivable from
+the data:
+  - "18 of 21 scheduled doses administered on time over the last 24
+    hours; one dose held for blood pressure, two refused at 02:00."
+  - "Heart rate trended down from 95 bpm on POD#1 to 82 bpm today,
+    within target range; one transient spike to 122 during ambulation."
+  - "No abnormal lab flags in the last 24 hours; coagulation panel
+    pending."
+
+If you cannot fill a panel with real, concrete content, DROP the
+panel. A 3-component spec with real content beats a 5-component
+spec with two filler panels.
 """
 
 # ---------------------------------------------------------------- role contexts

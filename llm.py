@@ -14,7 +14,27 @@ from openai import OpenAI
 
 import prompts
 
-MODEL = "deepseek-chat"
+MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+
+# Placeholder strings the LLM sometimes emits when it gets lazy. If any
+# of these appear in the spec we re-prompt once before giving up.
+_PLACEHOLDER_HINTS = (
+    "query result",
+    "placeholder",
+    "your text here",
+    "tbd",
+    "to be determined",
+    "fill in",
+    "lorem ipsum",
+    "summary here",
+    "summary will appear",
+    "todo",
+)
+
+
+def _looks_lazy(spec: dict) -> bool:
+    blob = json.dumps(spec, ensure_ascii=False).lower()
+    return any(h in blob for h in _PLACEHOLDER_HINTS)
 
 
 # --------------------------------------------------------------------- client
@@ -73,7 +93,7 @@ def generate_spec(role: str, ctx_kwargs: dict, current_time: str, current_date: 
         {"role": "user",   "content": user_query},
     ]
     try:
-        return _call_with_tool(messages)
+        spec = _call_with_tool(messages)
     except LLMError:
         # Re-prompt once, asking for strict tool compliance.
         messages.append({
@@ -82,7 +102,35 @@ def generate_spec(role: str, ctx_kwargs: dict, current_time: str, current_date: 
                         "generate_dashboard tool call following the schema "
                         "exactly."),
         })
-        return _call_with_tool(messages)
+        spec = _call_with_tool(messages)
+
+    # Lazy-content guard: if the model dumped 'query result' / 'placeholder'
+    # / 'TBD' style strings into the spec, re-prompt once more for concrete
+    # content. This is the most common cause of empty-looking dashboards.
+    if _looks_lazy(spec):
+        messages.append({
+            "role": "assistant",
+            "content": json.dumps(spec),
+        })
+        messages.append({
+            "role": "user",
+            "content": (
+                "The previous spec contained placeholder strings such as "
+                "'query result', 'TBD', or 'placeholder'. Regenerate the "
+                "spec with concrete content drawn from real database "
+                "tables. For text_summary panels, set config.content to "
+                "actual prose that references concrete numbers (e.g. "
+                "'18 of 21 scheduled doses administered on time'). For "
+                "metric_card components, value must come from a real "
+                "data_query, not a literal SELECT 'foo' AS bar. If you "
+                "cannot fill a panel with real data, drop that panel."
+            ),
+        })
+        try:
+            spec = _call_with_tool(messages)
+        except LLMError:
+            pass  # Keep the previous (lazy) spec rather than crashing.
+    return spec
 
 
 def deepen_spec(role: str, ctx_kwargs: dict, current_time: str, current_date: str,

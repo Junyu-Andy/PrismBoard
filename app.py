@@ -261,13 +261,21 @@ def _main_panel(ctx: dict):
     }[ctx["role"]]
     st.info(scope_note)
 
-    # If a chip was clicked on the previous run, copy its text into the
-    # input widget BEFORE the widget is instantiated this run (otherwise
-    # Streamlit refuses the assignment).
-    preset = st.session_state.pop("_preset_query", None)
-    auto_run = st.session_state.pop("_auto_run", None)
+    # Per-binding widget keys: when role or patient changes, the widget
+    # key changes too, so Streamlit drops the old widget state and the
+    # input box re-renders empty. (Just popping st.session_state['nl_query']
+    # does not clear the underlying widget cache reliably.)
+    bind_key   = f"{ctx['role']}_{ctx['patient_id']}"
+    input_key  = f"nl_query_{bind_key}"
+    preset_key = f"_preset_{bind_key}"
+    auto_key   = f"_auto_run_{bind_key}"
+
+    # If a chip on the previous run queued a preset, copy it into the
+    # input widget BEFORE the widget is instantiated this run.
+    preset = st.session_state.pop(preset_key, None)
+    auto_run = st.session_state.pop(auto_key, None)
     if preset is not None:
-        st.session_state["nl_query"] = preset
+        st.session_state[input_key] = preset
 
     # Example chips (one-click prompts the user can run as-is)
     st.caption("Quick prompts (click to fill and run):")
@@ -275,10 +283,10 @@ def _main_panel(ctx: dict):
     chip_cols = st.columns(len(examples))
     for i, ex in enumerate(examples):
         with chip_cols[i]:
-            if st.button(ex, key=f"chip_{ctx['role']}_{i}",
+            if st.button(ex, key=f"chip_{bind_key}_{i}",
                          use_container_width=True):
-                st.session_state["_preset_query"] = ex
-                st.session_state["_auto_run"]    = ex
+                st.session_state[preset_key] = ex
+                st.session_state[auto_key]   = ex
                 st.rerun()
 
     placeholder = {
@@ -289,7 +297,7 @@ def _main_panel(ctx: dict):
     }[ctx["role"]]
 
     query = st.text_input("Natural language query",
-                          placeholder=placeholder, key="nl_query")
+                          placeholder=placeholder, key=input_key)
     submitted = st.button("Generate", type="primary")
 
     # If a chip queued an auto-run, fire it now (after widget render).
@@ -505,7 +513,7 @@ def main():
         st.session_state["_ctx_sig"] = sig
         for k in ("last_spec", "previous_spec",
                   "last_safety_class", "last_safety_question",
-                  "last_classification", "nl_query"):
+                  "last_classification"):
             st.session_state.pop(k, None)
 
     _header(ctx)
