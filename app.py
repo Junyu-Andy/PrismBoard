@@ -13,6 +13,8 @@ import streamlit as st
 from dotenv import load_dotenv
 
 import data
+import llm
+import renderer
 
 # Demo time anchor must match seed.py
 DEMO_NOW = datetime(2026, 5, 7, 10, 0)
@@ -158,6 +160,35 @@ def _header(ctx: dict):
         )
 
 
+def _build_ctx_kwargs(ctx: dict) -> dict:
+    """Assemble the kwargs needed to format role context / permission strings."""
+    patient = data.get_patient(ctx["patient_id"])
+    out = {
+        "patient_id":   ctx["patient_id"],
+        "patient_name": patient["name"],
+        "post_op_day":  ctx["post_op_day"],
+    }
+    if ctx["role"] == "doctor":
+        doc_df = data.list_doctors()
+        row = doc_df[doc_df["id"] == ctx["actor_id"]].iloc[0]
+        out.update(actor_name=row["name"], department=row["department"])
+    elif ctx["role"] == "nurse":
+        nu_df = data.list_nurses()
+        row = nu_df[nu_df["id"] == ctx["actor_id"]].iloc[0]
+        out.update(
+            actor_name=row["name"],
+            nurse_id=row["id"],
+            nurse_level=row["level"],
+            current_shift=row["current_shift"],
+        )
+    elif ctx["role"] == "family":
+        out.update(
+            actor_name=ctx["actor_label"],
+            family_relation=st.session_state.get("family_relation", "relative"),
+        )
+    return out
+
+
 def _main_panel(ctx: dict):
     st.subheader("Ask the dashboard")
     placeholder = {
@@ -167,35 +198,30 @@ def _main_panel(ctx: dict):
         "family":  "e.g. How is mum doing today, can I visit?",
     }[ctx["role"]]
 
-    query = st.text_input("Natural language query", placeholder=placeholder, key="nl_query")
+    query = st.text_input("Natural language query",
+                          placeholder=placeholder, key="nl_query")
     submitted = st.button("Generate", type="primary")
 
     if submitted and query:
-        st.info(
-            "LLM and renderer wiring lands in Phase 2. "
-            "For now this confirms the role/patient/actor binding and SQL guard."
-        )
-        st.json({
-            "role": ctx["role"],
-            "patient_id": ctx["patient_id"],
-            "actor_id": ctx["actor_id"],
-            "query": query,
-        })
+        ctx_kwargs = _build_ctx_kwargs(ctx)
+        with st.spinner("Generating dashboard ..."):
+            try:
+                spec = llm.generate_spec(
+                    role=ctx["role"],
+                    ctx_kwargs=ctx_kwargs,
+                    current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                    post_op_day=ctx["post_op_day"],
+                    ampm=ctx["ampm"],
+                    user_query=query,
+                )
+            except Exception as e:
+                st.error(f"LLM call failed: {e}")
+                return
+        st.session_state["last_spec"] = spec
 
-        # Smoke-test the SQL safety layer
-        try:
-            df = data.safe_execute(
-                f"SELECT recorded_at, hr, bp_sys, spo2, pain_score "
-                f"FROM vitals WHERE patient_id = '{ctx['patient_id']}' "
-                f"ORDER BY recorded_at DESC LIMIT 8",
-                role=ctx["role"],
-                user_id=ctx["actor_id"],
-                patient_id=ctx["patient_id"],
-            )
-            st.success(f"SQL guard passed; latest 8 vitals:")
-            st.dataframe(df, use_container_width=True)
-        except data.SqlSafetyError as e:
-            st.warning(f"SQL guard blocked the smoke-test query: {e}")
+    spec = st.session_state.get("last_spec")
+    if spec:
+        renderer.render_spec(spec, ctx)
 
 
 def main():
