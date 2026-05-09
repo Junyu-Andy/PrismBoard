@@ -1,0 +1,11 @@
+id,name,level,current_shift
+N001,Nurse Zhang Li,senior,morning
+N002,Nurse Li Hua,junior,morning
+N003,Nurse Wang Mei,charge,morning
+N004,Nurse Zhou Min,senior,afternoon
+N005,Nurse Wu Jing,junior,afternoon
+N006,Nurse Sun Lei,senior,afternoon
+N007,Nurse Yang Fang,junior,night
+N008,Nurse Hu Yan,senior,night
+N009,Nurse Xu Ping,junior,night
+N010,Nurse Gao Qiang,senior,morning

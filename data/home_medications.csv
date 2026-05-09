@@ -1,0 +1,10 @@
+patient_id,drug_name,dosage,frequency
+P002,Insulin glargine,18 U,qHS
+P002,Insulin aspart,6-8 U,TID with meals
+P002,Amlodipine,5 mg,QD
+P002,Rivaroxaban,20 mg,QD
+P002,Atorvastatin,20 mg,qHS
+P002,Metoprolol,47.5 mg,QD
+P004,Amlodipine,5 mg,QD
+P005,Furosemide,20 mg,QD
+P005,Bisoprolol,2.5 mg,QD

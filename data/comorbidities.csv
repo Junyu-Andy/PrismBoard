@@ -1,0 +1,8 @@
+patient_id,condition,severity,since_date
+P002,Type 2 diabetes mellitus,moderate,2014-03-01
+P002,Hypertension,moderate,2010-06-01
+P002,Atrial fibrillation,moderate,2018-09-15
+P002,Status post myocardial infarction (3y),severe,2023-01-20
+P002,Mild chronic kidney disease (stage 2),mild,2022-04-10
+P005,Congestive heart failure (NYHA II),moderate,2020-01-01
+P004,Hypertension,mild,2019-05-01
