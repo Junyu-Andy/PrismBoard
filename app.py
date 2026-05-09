@@ -60,66 +60,85 @@ def _sidebar():
         key="role",
     )
 
-    # Patient
     patients = data.list_patients()
     primary = patients[patients["patient_id"].isin(["P001", "P002"])]
     patient_label = {row["patient_id"]: f"{row['name']} ({row['patient_id']}) - {row['primary_diagnosis']}"
                      for _, row in primary.iterrows()}
-    patient_id = st.sidebar.selectbox(
-        "Patient",
-        options=list(patient_label.keys()),
-        format_func=lambda pid: patient_label[pid],
-        key="patient_id",
-    )
 
-    # Actor binding (who is logged in)
     actor_id = None
     actor_label = None
+    patient_id = None
+
     if role == "doctor":
+        # Doctor picks a patient to look at, then picks which doctor they are.
+        patient_id = st.sidebar.selectbox(
+            "Patient", options=list(patient_label.keys()),
+            format_func=lambda pid: patient_label[pid], key="doctor_patient_id",
+        )
         docs = data.list_doctors()
-        opts = list(docs["id"])
         actor_id = st.sidebar.selectbox(
             "Logged in as",
-            options=opts,
-            format_func=lambda d: f"{d} - {docs[docs['id']==d].iloc[0]['name']} ({docs[docs['id']==d].iloc[0]['department']})",
-            index=0,
-            key="actor_id",
+            options=list(docs["id"]),
+            format_func=lambda d: f"{d} - {docs[docs['id']==d].iloc[0]['name']} "
+                                  f"({docs[docs['id']==d].iloc[0]['department']})",
+            key="doctor_actor_id",
         )
         actor_label = docs[docs["id"] == actor_id].iloc[0]["name"]
+
     elif role == "nurse":
+        # Nurse picks a patient to look at, then picks which nurse they are.
+        patient_id = st.sidebar.selectbox(
+            "Patient", options=list(patient_label.keys()),
+            format_func=lambda pid: patient_label[pid], key="nurse_patient_id",
+        )
         nurses = data.list_nurses()
         opts = list(nurses["id"])
-        # Default to the patient's primary nurse
         primary_nurse = data.get_patient(patient_id).get("primary_nurse_id")
         default_idx = opts.index(primary_nurse) if primary_nurse in opts else 0
         actor_id = st.sidebar.selectbox(
-            "Logged in as",
-            options=opts,
-            format_func=lambda n: f"{n} - {nurses[nurses['id']==n].iloc[0]['name']} ({nurses[nurses['id']==n].iloc[0]['current_shift']})",
-            index=default_idx,
-            key="actor_id",
+            "Logged in as", options=opts,
+            format_func=lambda n: f"{n} - {nurses[nurses['id']==n].iloc[0]['name']} "
+                                  f"({nurses[nurses['id']==n].iloc[0]['current_shift']})",
+            index=default_idx, key="nurse_actor_id",
         )
         actor_label = nurses[nurses["id"] == actor_id].iloc[0]["name"]
+
     elif role == "patient":
+        # The actor IS the patient. Picking "Logged in as" picks the patient.
+        patient_id = st.sidebar.selectbox(
+            "Logged in as", options=list(patient_label.keys()),
+            format_func=lambda pid: patient_label[pid], key="patient_self_id",
+        )
         actor_id = patient_id
         actor_label = data.get_patient(patient_id)["name"]
-        st.sidebar.markdown(f"**Logged in as:** {actor_label}")
+
     elif role == "family":
-        # Mock family roster derived from family_communications
-        family_for = {
-            "P001": [("Liu Jia", "wife"), ("Wang Tao", "brother")],
-            "P002": [("Li Min", "daughter"), ("Li Qiang", "son")],
-        }
-        opts = family_for.get(patient_id, [("Family", "relative")])
-        choice = st.sidebar.selectbox(
+        # Family identity is bound to a single patient. There is NO patient
+        # picker - you log in as a specific family member and that fixes
+        # which patient you can see.
+        FAMILY_ROSTER = [
+            ("Liu Jia",  "wife",     "P001"),
+            ("Wang Tao", "brother",  "P001"),
+            ("Li Min",   "daughter", "P002"),
+            ("Li Qiang", "son",      "P002"),
+        ]
+        idx = st.sidebar.selectbox(
             "Logged in as",
-            options=range(len(opts)),
-            format_func=lambda i: f"{opts[i][0]} ({opts[i][1]})",
-            key="actor_id_family",
+            options=range(len(FAMILY_ROSTER)),
+            format_func=lambda i: (
+                f"{FAMILY_ROSTER[i][0]} ({FAMILY_ROSTER[i][1]} of "
+                f"{data.get_patient(FAMILY_ROSTER[i][2])['name']})"
+            ),
+            key="family_actor_idx",
         )
-        actor_id = opts[choice][0]
-        actor_label = opts[choice][0]
-        st.session_state["family_relation"] = opts[choice][1]
+        name, rel, pid = FAMILY_ROSTER[idx]
+        patient_id = pid
+        actor_id = name
+        actor_label = name
+        st.session_state["family_relation"] = rel
+        st.sidebar.caption(
+            "You can only see information for the patient you are related to."
+        )
 
     st.sidebar.divider()
 
