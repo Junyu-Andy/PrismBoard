@@ -129,7 +129,8 @@ def rebuild(force: bool = False):
         try:
             spec = llm.generate_spec(
                 role=prompt["role"], ctx_kwargs=ctx_kwargs,
-                current_time=DEMO_NOW.strftime("%a %Y-%m-%d %H:%M"),
+                current_time=DEMO_NOW.strftime("%Y-%m-%d %H:%M:%S"),
+                current_date=DEMO_NOW.strftime("%Y-%m-%d"),
                 post_op_day=2, ampm="morning",
                 user_query=prompt["query"],
             )

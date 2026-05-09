@@ -180,10 +180,17 @@ def _render_heatmap(component, df, role_ctx):
     if df is None or df.empty:
         st.info("No data.")
         return
+    if df.shape[1] < 3:
+        st.info("Need at least three columns (x / y / value) for a heatmap.")
+        return
     x = _resolve_col(cfg.get("x"), df) or df.columns[0]
     y = _resolve_col(cfg.get("y"), df) or df.columns[1]
     val = _resolve_col(cfg.get("value"), df) or df.columns[-1]
-    pivot = df.pivot_table(index=y, columns=x, values=val, aggfunc="mean")
+    try:
+        pivot = df.pivot_table(index=y, columns=x, values=val, aggfunc="mean")
+    except Exception as e:
+        st.info(f"Could not pivot for heatmap: {e}")
+        return
     fig = px.imshow(pivot, aspect="auto", title=None)
     fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     st.plotly_chart(fig, use_container_width=True)
@@ -207,10 +214,16 @@ def _render_distribution(component, df, role_ctx):
     if df is None or df.empty:
         st.info("No data.")
         return
-    val = cfg.get("value") or df.select_dtypes("number").columns[0]
+    val = _resolve_col(cfg.get("value"), df)
+    if val is None:
+        numeric = df.select_dtypes("number").columns
+        if len(numeric) == 0:
+            st.info("No numeric column to plot a distribution.")
+            return
+        val = numeric[0]
     bins = cfg.get("bins", 20)
-    fig = px.histogram(df, x=val, nbins=int(bins), title=component.get("title"))
-    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10), height=320)
+    fig = px.histogram(df, x=val, nbins=int(bins), title=None)
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     st.plotly_chart(fig, use_container_width=True)
 
 
