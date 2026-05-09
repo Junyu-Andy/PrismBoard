@@ -76,6 +76,23 @@ def _run_query(query: str, role_ctx: dict) -> Optional[pd.DataFrame]:
 
 
 # ---------------------------------------------------------------- primitives
+def _resolve_col(col, df):
+    """Match an LLM-named column against the dataframe, tolerating SQL casts.
+
+    The LLM sometimes writes 'recorded_at::date' or 'value::float' as a
+    config field. Strip cast suffixes and only return a column that
+    actually exists - otherwise return None so the caller can drop it.
+    """
+    if not col or df is None:
+        return None
+    if col in df.columns:
+        return col
+    base = str(col).split("::", 1)[0].strip()
+    if base in df.columns:
+        return base
+    return None
+
+
 def _render_metric_card(component, df, role_ctx):
     cfg = component.get("config", {})
     label = cfg.get("label") or component.get("title", "Metric")
@@ -99,9 +116,9 @@ def _render_line_chart(component, df, role_ctx):
     if df is None or df.empty:
         st.info("No data.")
         return
-    x = cfg.get("x") or df.columns[0]
-    y = cfg.get("y") or df.columns[-1]
-    group_by = cfg.get("group_by")
+    x = _resolve_col(cfg.get("x"), df) or df.columns[0]
+    y = _resolve_col(cfg.get("y"), df) or df.columns[-1]
+    group_by = _resolve_col(cfg.get("group_by"), df)
     fig = px.line(df, x=x, y=y, color=group_by, title=None, markers=True)
     fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     if pd.api.types.is_datetime64_any_dtype(df[x]) or "_at" in str(x) or "date" in str(x):
@@ -114,8 +131,8 @@ def _render_bar_chart(component, df, role_ctx):
     if df is None or df.empty:
         st.info("No data.")
         return
-    x = cfg.get("x") or df.columns[0]
-    y = cfg.get("y") or df.columns[-1]
+    x = _resolve_col(cfg.get("x"), df) or df.columns[0]
+    y = _resolve_col(cfg.get("y"), df) or df.columns[-1]
     fig = px.bar(df, x=x, y=y, title=None)
     fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     st.plotly_chart(fig, use_container_width=True)
@@ -126,11 +143,11 @@ def _render_scatter(component, df, role_ctx):
     if df is None or df.empty:
         st.info("No data.")
         return
-    x = cfg.get("x") or df.columns[0]
-    y = cfg.get("y") or df.columns[1]
-    color = cfg.get("color_by")
-    fig = px.scatter(df, x=x, y=y, color=color, title=component.get("title"))
-    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10), height=320)
+    x = _resolve_col(cfg.get("x"), df) or df.columns[0]
+    y = _resolve_col(cfg.get("y"), df) or df.columns[1]
+    color = _resolve_col(cfg.get("color_by"), df)
+    fig = px.scatter(df, x=x, y=y, color=color, title=None)
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -139,12 +156,12 @@ def _render_heatmap(component, df, role_ctx):
     if df is None or df.empty:
         st.info("No data.")
         return
-    x = cfg.get("x") or df.columns[0]
-    y = cfg.get("y") or df.columns[1]
-    val = cfg.get("value") or df.columns[-1]
+    x = _resolve_col(cfg.get("x"), df) or df.columns[0]
+    y = _resolve_col(cfg.get("y"), df) or df.columns[1]
+    val = _resolve_col(cfg.get("value"), df) or df.columns[-1]
     pivot = df.pivot_table(index=y, columns=x, values=val, aggfunc="mean")
-    fig = px.imshow(pivot, aspect="auto", title=component.get("title"))
-    fig.update_layout(margin=dict(l=10, r=10, t=40, b=10), height=320)
+    fig = px.imshow(pivot, aspect="auto", title=None)
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=30), height=320)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -214,14 +231,15 @@ def _render_vital_trajectory(component, df, role_ctx):
     n = len(available)
     cols = 2 if n > 2 else 1
     rows = math.ceil(n / cols)
-    fig = go.Figure()
-    # Use subplots
     from plotly.subplots import make_subplots
-    fig = make_subplots(
-        rows=rows, cols=cols,
-        subplot_titles=[v.upper() for v in available],
-        vertical_spacing=0.12,
-    )
+    # Pad subplot titles with None (NOT empty string) for unfilled slots,
+    # otherwise Plotly renders the slot title as "undefined".
+    titles = [v.upper() for v in available]
+    titles += [None] * (rows * cols - len(titles))
+    sub_kwargs = dict(rows=rows, cols=cols, subplot_titles=titles)
+    if rows > 1:
+        sub_kwargs["vertical_spacing"] = 0.18
+    fig = make_subplots(**sub_kwargs)
     for i, vital in enumerate(available):
         r = i // cols + 1
         c = i % cols + 1
@@ -417,34 +435,26 @@ def render_spec(spec: dict, role_ctx: dict,
                 diff_status=diff["per_component"].get(idx, "initial"),
             )
 
-    # Layout rule:
-    #   - if any vital_trajectory exists, the FIRST one is full-width hero;
-    #   - otherwise, the first component is hero (full-width);
-    #   - everything else flows in 2 columns underneath.
-    hero_idx = None
-    for i, comp in enumerate(layout):
-        if comp.get("type") == "vital_trajectory":
-            hero_idx = i
-            break
-    if hero_idx is None and layout:
-        hero_idx = 0
+    # Layout rule (top to bottom):
+    #   1. text_summary panels (the "what's going on" headline) - full width
+    #   2. all vital_trajectory panels - full width, the main charts
+    #   3. everything else - 2 columns
+    text_summaries = [(i, c) for i, c in enumerate(layout)
+                      if c.get("type") == "text_summary"]
+    vital_trajs    = [(i, c) for i, c in enumerate(layout)
+                      if c.get("type") == "vital_trajectory"]
+    used = {i for i, _ in text_summaries} | {i for i, _ in vital_trajs}
+    others         = [(i, c) for i, c in enumerate(layout) if i not in used]
 
-    if hero_idx is not None:
-        _render_one(layout[hero_idx], hero_idx)
-
-    rest = [(i, c) for i, c in enumerate(layout) if i != hero_idx]
-    if rest:
-        # Promote text_summary to full-width too - they read badly in 2-col.
-        full_width_types = {"text_summary"}
-        single = [(i, c) for i, c in rest if c.get("type") in full_width_types]
-        twocol = [(i, c) for i, c in rest if c.get("type") not in full_width_types]
-        for i, comp in single:
-            _render_one(comp, i)
-        if twocol:
-            cols = st.columns(2)
-            for n, (i, comp) in enumerate(twocol):
-                with cols[n % 2]:
-                    _render_one(comp, i)
+    for i, comp in text_summaries:
+        _render_one(comp, i)
+    for i, comp in vital_trajs:
+        _render_one(comp, i)
+    if others:
+        cols = st.columns(2)
+        for n, (i, comp) in enumerate(others):
+            with cols[n % 2]:
+                _render_one(comp, i)
 
 
 # ---------------------------------------------------------------- spec editor

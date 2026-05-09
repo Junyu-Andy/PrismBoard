@@ -184,74 +184,96 @@ def gen_surgeries():
 
 # --------------------------------------------------------------------- vitals
 def gen_vitals_for(patient_id: str, profile: str, age: int):
-    """30-min cadence, 5 days from surgery end onwards (~240 rows)."""
+    """30-min cadence, 5 days post-op (~240 rows).
+
+    Recovery is modelled monotonically: a smooth daily-decline baseline
+    plus small noise, with a small number of *deliberate* out-of-range
+    events so demo dashboards have something to highlight. The labile
+    profile (Li Xiuying) has clearly more events than the stable one.
+    """
     rows = []
     surgery_end = SURGERY_START + timedelta(minutes=240 if profile == "labile" else 150)
-    base_hr = 72 if profile == "stable" else 84
-    base_sys = 122 if profile == "stable" else 138
-    base_dia = 76 if profile == "stable" else 82
-    base_spo2 = 98 if profile == "stable" else 96
-    base_rr = 15 if profile == "stable" else 17
-    base_temp = 36.7
-    pain_now = 4 if profile == "stable" else 7
-
     t = surgery_end
     end_t = surgery_end + timedelta(days=5)
     step = timedelta(minutes=30)
-    n = 0
+
     while t < end_t:
-        # Hours since surgery end
         hours_post = (t - surgery_end).total_seconds() / 3600.0
-        # Pain trends down over days
-        if profile == "stable":
-            pain = max(1, round(4 - hours_post * 0.03 + random.uniform(-0.5, 0.5)))
-        else:
-            pain = max(3, round(7 - hours_post * 0.025 + random.uniform(-0.7, 0.9)))
+        days_post  = hours_post / 24.0  # 0..5
 
         if profile == "stable":
-            hr = base_hr + random.uniform(-4, 5)
-            sys_ = base_sys + random.uniform(-5, 6)
-            dia = base_dia + random.uniform(-4, 4)
-            spo2 = base_spo2 + random.uniform(-1, 1)
-            rr = base_rr + random.uniform(-1, 1)
-            temp = base_temp + random.uniform(-0.2, 0.3)
-            urine = random.randint(60, 120)
-        else:
-            # Episodic excursions
-            excursion = random.random() < 0.18
-            hr = base_hr + random.uniform(-6, 8) + (random.uniform(8, 22) if excursion else 0)
-            sys_ = base_sys + random.uniform(-12, 14) + (random.uniform(-25, 25) if excursion else 0)
-            dia = base_dia + random.uniform(-8, 10)
-            spo2 = base_spo2 + random.uniform(-2, 1.5) - (random.uniform(2, 5) if excursion and random.random() < 0.5 else 0)
-            rr = base_rr + random.uniform(-1, 2) + (random.uniform(0, 4) if excursion else 0)
-            temp = base_temp + random.uniform(-0.2, 0.5) + (random.uniform(0.4, 1.1) if excursion and random.random() < 0.4 else 0)
-            urine = random.randint(25, 90)
-        # Recording nurse rotates by shift
+            # Smooth recovery: HR 80 -> 66, BP_sys 124 -> 116, RR 16 -> 13.
+            hr   = 80 - 14 * (days_post / 5)  + random.gauss(0, 1.5)
+            sys_ = 124 - 8 * (days_post / 5)  + random.gauss(0, 2.0)
+            dia  = 78  - 6 * (days_post / 5)  + random.gauss(0, 1.5)
+            spo2 = 98 + random.gauss(0, 0.4)
+            rr   = 16 - 3 * (days_post / 5)  + random.gauss(0, 0.7)
+            # One mild fever evening of POD#1 (32-36h post-op).
+            if 32 <= hours_post <= 36:
+                temp = 37.4 + random.gauss(0, 0.1)
+            else:
+                temp = 36.7 + random.gauss(0, 0.15)
+            # One transient HR spike during ambulation on POD#2.
+            if 50 <= hours_post <= 51:
+                hr += 22
+            pain = max(1, round(4 - 3 * (days_post / 5) + random.uniform(-0.4, 0.4)))
+            urine = random.randint(80, 120)
+
+        else:  # labile - Li Xiuying
+            # Elevated baseline due to AF and post-op stress, gradual
+            # improvement towards day 5 (HR 105 -> 85, BP_sys 150 -> 128).
+            hr   = 105 - 20 * (days_post / 5) + random.gauss(0, 4)
+            sys_ = 150 - 22 * (days_post / 5) + random.gauss(0, 5)
+            dia  = 90  - 10 * (days_post / 5) + random.gauss(0, 3.5)
+            spo2 = 96 + random.gauss(0, 0.6)
+            rr   = 20 - 4 * (days_post / 5)  + random.gauss(0, 1)
+            temp = 36.8 + random.gauss(0, 0.2)
+
+            # POD#0-1 tachycardia episodes (~20% of readings).
+            if days_post < 1.5 and random.random() < 0.20:
+                hr += random.uniform(15, 25)
+            # BP excursions (~10%).
+            if random.random() < 0.10:
+                sys_ += random.choice([-30, 30]) + random.gauss(0, 5)
+            # SpO2 dips on POD#0-1 (~8%).
+            if days_post < 1.5 and random.random() < 0.08:
+                spo2 -= random.uniform(2, 5)
+            # Two clear fever episodes: 28-36h and 76-82h.
+            if 28 <= hours_post <= 36:
+                temp = 38.0 + random.gauss(0, 0.15)
+            elif 76 <= hours_post <= 82:
+                temp = 37.7 + random.gauss(0, 0.1)
+
+            pain = max(3, round(7 - 4 * (days_post / 5) + random.uniform(-0.6, 0.8)))
+            if random.random() < 0.06:
+                pain += 2
+            urine = (random.randint(30, 60) if days_post < 1.0
+                     else random.randint(50, 90))
+
         sh = shift_tag_for(t)
-        nurse_pool = [n_["id"] for n_ in NURSES if n_["current_shift"] == sh]
-        nurse = random.choice(nurse_pool)
+        nurse = random.choice([n_["id"] for n_ in NURSES if n_["current_shift"] == sh])
 
         rows.append({
             "patient_id": patient_id,
             "recorded_at": t,
-            "hr": int(round(hr)),
-            "bp_sys": int(round(sys_)),
-            "bp_dia": int(round(dia)),
-            "spo2": int(round(min(100, spo2))),
-            "rr": int(round(rr)),
-            "temp_c": round1(temp),
-            "pain_score": int(pain),
+            "hr":          int(round(max(45, min(170, hr)))),
+            "bp_sys":      int(round(max(70, min(220, sys_)))),
+            "bp_dia":      int(round(max(40, min(130, dia)))),
+            "spo2":        int(round(max(85, min(100, spo2)))),
+            "rr":          int(round(max(8,  min(35,  rr)))),
+            "temp_c":      round1(max(35.5, min(40.0, temp))),
+            "pain_score":  int(min(10, pain)),
             "urine_output_ml": urine,
             "recorded_by_nurse_id": nurse,
         })
         t += step
-        n += 1
     return rows
 
 
 # --------------------------------------------------------------------- glucose
 def gen_glucose():
-    """Li Xiuying only: 6-8 readings/day x 5 days."""
+    """Li Xiuying only: 6-8 readings/day x 5 days, with a clear recovery
+    arc and one demo-friendly hypoglycaemia event."""
     rows = []
     contexts = [
         ("06:30", "fasting"),
@@ -262,29 +284,44 @@ def gen_glucose():
         ("19:30", "post_dinner"),
         ("22:00", "bedtime"),
     ]
+    # Day-by-day target glucose (mmol/L): post-op stress on day 0,
+    # gradual control by day 4.
+    day_targets = {
+        0: (10.0, 14.0, 11.0),  # fasting / post-meal / other
+        1: (9.0,  13.0, 10.0),
+        2: (8.0,  11.0,  9.0),
+        3: (7.0,  10.0,  8.0),
+        4: (6.5,   9.0,  7.5),
+    }
     for d in range(5):
         day = (SURGERY_START + timedelta(days=d)).date()
+        f_t, p_t, o_t = day_targets[d]
         for hhmm, ctx in contexts:
-            if random.random() < 0.85:
+            if random.random() < 0.92:
                 hh, mm = map(int, hhmm.split(":"))
                 ts = datetime.combine(day, datetime.min.time()).replace(hour=hh, minute=mm)
                 if ts < SURGERY_START:
                     continue
                 if ctx == "fasting":
-                    val = random.uniform(5.5, 8.5)
+                    val = f_t + random.gauss(0, 1.0)
                 elif ctx.startswith("post"):
-                    val = random.uniform(8.5, 14.8)
+                    val = p_t + random.gauss(0, 1.5)
                 else:
-                    val = random.uniform(5.0, 11.0)
-                # Day 1 sees more excursions
-                if d <= 1 and random.random() < 0.3:
-                    val += random.uniform(1.5, 3.0)
+                    val = o_t + random.gauss(0, 1.2)
                 rows.append({
-                    "patient_id": "P002",
+                    "patient_id":  "P002",
                     "recorded_at": ts,
-                    "value_mmol": round1(val),
-                    "context": ctx,
+                    "value_mmol":  round1(max(3.0, min(20, val))),
+                    "context":     ctx,
                 })
+    # Insert a single hypoglycaemia event on POD#1 mid-morning.
+    rows.append({
+        "patient_id":  "P002",
+        "recorded_at": (SURGERY_START + timedelta(days=1)).replace(hour=10, minute=15),
+        "value_mmol":  4.0,
+        "context":     "between_meals",
+    })
+    rows.sort(key=lambda r: r["recorded_at"])
     return rows
 
 

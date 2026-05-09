@@ -179,6 +179,8 @@ def _header(ctx: dict):
             f"**Role:** {ctx['role'].capitalize()}  \n"
             f"**You:** {ctx['actor_label']}"
         )
+    st.caption("Demo data only - patients, vitals, labs, meds and tasks "
+               "are all synthetic.")
 
 
 def _build_ctx_kwargs(ctx: dict) -> dict:
@@ -210,13 +212,40 @@ def _build_ctx_kwargs(ctx: dict) -> dict:
     return out
 
 
+def _examples_for(role: str, patient_name: str) -> list[str]:
+    p = patient_name
+    return {
+        "doctor": [
+            f"How has {p} recovered in the last 24 hours?",
+            f"Find anomalies in {p}'s vitals since surgery",
+            f"Summarise {p}'s medication adherence and any missed doses",
+        ],
+        "nurse": [
+            f"What do I need to do for {p} in the next 4 hours?",
+            f"Are any of {p}'s vitals out of range right now?",
+            f"What medication is {p} due to receive this shift?",
+        ],
+        "patient": [
+            "When can I be discharged?",
+            "What time will my next medication arrive?",
+            "When can my family visit?",
+        ],
+        "family": [
+            f"How has {p} been over the last day, can I visit?",
+            "What is the plan for today?",
+            "Did the doctor leave any new instructions?",
+        ],
+    }[role]
+
+
 def _main_panel(ctx: dict):
     st.subheader("Ask the dashboard")
+
+    patient_name = data.get_patient(ctx["patient_id"])["name"]
 
     # Scope banner: tell the user explicitly which patient and actor the
     # next query will run under. Avoids the "I asked about Li Xiuying but
     # the sidebar still has Wang Wei selected" surprise.
-    patient_name = data.get_patient(ctx["patient_id"])["name"]
     scope_note = {
         "doctor":  f"Asking as **{ctx['actor_label']}** about **{patient_name}** "
                    f"({ctx['patient_id']}). To switch patients, use the sidebar.",
@@ -232,16 +261,41 @@ def _main_panel(ctx: dict):
     }[ctx["role"]]
     st.info(scope_note)
 
+    # If a chip was clicked on the previous run, copy its text into the
+    # input widget BEFORE the widget is instantiated this run (otherwise
+    # Streamlit refuses the assignment).
+    preset = st.session_state.pop("_preset_query", None)
+    auto_run = st.session_state.pop("_auto_run", None)
+    if preset is not None:
+        st.session_state["nl_query"] = preset
+
+    # Example chips (one-click prompts the user can run as-is)
+    st.caption("Quick prompts (click to fill and run):")
+    examples = _examples_for(ctx["role"], patient_name)
+    chip_cols = st.columns(len(examples))
+    for i, ex in enumerate(examples):
+        with chip_cols[i]:
+            if st.button(ex, key=f"chip_{ctx['role']}_{i}",
+                         use_container_width=True):
+                st.session_state["_preset_query"] = ex
+                st.session_state["_auto_run"]    = ex
+                st.rerun()
+
     placeholder = {
-        "doctor":  "e.g. How has Wang Wei recovered in the last 24 hours?",
-        "nurse":   "e.g. What do I need to do in the next 4 hours?",
+        "doctor":  f"e.g. How has {patient_name} recovered in the last 24 hours?",
+        "nurse":   f"e.g. What do I need to do for {patient_name} in the next 4 hours?",
         "patient": "e.g. When can I be discharged?",
-        "family":  "e.g. How is mum doing today, can I visit?",
+        "family":  f"e.g. How is {patient_name} doing today, can I visit?",
     }[ctx["role"]]
 
     query = st.text_input("Natural language query",
                           placeholder=placeholder, key="nl_query")
     submitted = st.button("Generate", type="primary")
+
+    # If a chip queued an auto-run, fire it now (after widget render).
+    if auto_run:
+        submitted = True
+        query = auto_run
 
     if submitted and query:
         # Patient-side safety router runs BEFORE any spec generation.
@@ -363,9 +417,10 @@ def _render_spec_with_controls(spec: dict, ctx: dict):
         st.write("")  # breathing space
 
     # Drilldown ("Focus on..."): pick an entity and rebuild the dashboard
-    # around it.
+    # around it. Only meaningful for clinicians who actually navigate
+    # records; hidden for patient/family.
     targets = spec.get("drill_targets") or []
-    if targets:
+    if targets and ctx["role"] in ("doctor", "nurse"):
         st.markdown("##### Focus on...")
         st.caption(
             "Pick a field (e.g. patient_id, lab_panel, drug_name) and a "
