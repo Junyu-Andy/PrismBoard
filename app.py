@@ -12,9 +12,11 @@ from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 
+import cache_specs
 import data
 import llm
 import renderer
+import safety
 
 # Demo time anchor must match seed.py
 DEMO_NOW = datetime(2026, 5, 7, 10, 0)
@@ -203,25 +205,141 @@ def _main_panel(ctx: dict):
     submitted = st.button("Generate", type="primary")
 
     if submitted and query:
-        ctx_kwargs = _build_ctx_kwargs(ctx)
-        with st.spinner("Generating dashboard ..."):
-            try:
-                spec = llm.generate_spec(
-                    role=ctx["role"],
-                    ctx_kwargs=ctx_kwargs,
-                    current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
-                    post_op_day=ctx["post_op_day"],
-                    ampm=ctx["ampm"],
-                    user_query=query,
-                )
-            except Exception as e:
-                st.error(f"LLM call failed: {e}")
-                return
-        st.session_state["last_spec"] = spec
+        # Patient-side safety router runs BEFORE any spec generation.
+        if ctx["role"] == "patient":
+            with st.spinner("Routing your question ..."):
+                cls = safety.route_patient_question(query)
+            st.session_state["last_classification"] = cls
+            if cls in ("symptom", "emotional", "chitchat"):
+                # Bypass spec generation entirely.
+                st.session_state["last_spec"] = None
+                st.session_state["last_safety_question"] = query
+                st.session_state["last_safety_class"] = cls
+            else:  # procedural -> normal spec generation
+                _generate_and_store(ctx, query)
+        else:
+            _generate_and_store(ctx, query)
+
+    # Render either a safety card (patient symptom/emotional/chitchat) or a spec.
+    if ctx["role"] == "patient" and st.session_state.get("last_safety_class") in (
+            "symptom", "emotional", "chitchat"):
+        cls = st.session_state["last_safety_class"]
+        q   = st.session_state.get("last_safety_question", "")
+        st.caption(f"Classified as **{cls}** - response is a fixed safety card, "
+                   f"the LLM never produced a medical answer.")
+        if cls == "symptom":
+            safety.render_symptom_card(q, ctx["patient_id"])
+        elif cls == "emotional":
+            safety.render_emotional_card(q, ctx["patient_id"])
+        else:
+            safety.render_chitchat_card(q)
+        return
 
     spec = st.session_state.get("last_spec")
     if spec:
-        renderer.render_spec(spec, ctx)
+        _render_spec_with_controls(spec, ctx)
+
+
+def _generate_and_store(ctx: dict, query: str):
+    ctx_kwargs = _build_ctx_kwargs(ctx)
+    spec = None
+    with st.spinner("Generating dashboard ..."):
+        try:
+            spec = llm.generate_spec(
+                role=ctx["role"],
+                ctx_kwargs=ctx_kwargs,
+                current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                post_op_day=ctx["post_op_day"],
+                ampm=ctx["ampm"],
+                user_query=query,
+            )
+        except Exception as e:
+            cached = cache_specs.lookup(ctx["role"], ctx["patient_id"], query)
+            if cached is not None:
+                st.warning(f"LLM call failed ({e}). Falling back to a cached spec.")
+                spec = cached
+            else:
+                st.error(f"LLM call failed and no cached fallback exists: {e}")
+                return
+    st.session_state["last_spec"] = spec
+    # Clear any lingering patient-side safety card state.
+    st.session_state["last_safety_class"] = None
+
+
+def _render_spec_with_controls(spec: dict, ctx: dict):
+    renderer.render_spec(spec, ctx)
+    st.divider()
+
+    # Doctor-only granularity buttons
+    if ctx["role"] == "doctor":
+        opts = spec.get("granularity_options") or []
+        if opts:
+            st.markdown("##### Deepen the view")
+            cols = st.columns(len(opts))
+            for i, opt in enumerate(opts):
+                with cols[i]:
+                    if st.button(opt, key=f"deepen_{i}"):
+                        _deepen(ctx, spec, opt)
+                        st.rerun()
+
+    # Drilldown selector
+    targets = spec.get("drill_targets") or []
+    if targets:
+        st.markdown("##### Drill down")
+        cols = st.columns([2, 3, 3, 1])
+        with cols[0]:
+            entity_type = st.selectbox("Field", targets, key="drill_field")
+        with cols[1]:
+            entity_id = st.text_input("Value", key="drill_value")
+        with cols[2]:
+            entity_label = st.text_input("Label (optional)", key="drill_label")
+        with cols[3]:
+            if st.button("Drill", key="drill_btn") and entity_id:
+                _drilldown(ctx, spec, entity_type, entity_id,
+                           entity_label or entity_id)
+                st.rerun()
+
+    # Step-back editor
+    with st.expander("Step back: edit the dashboard spec"):
+        edited = renderer.render_spec_editor(spec)
+        if st.button("Re-render edited spec", key="rerender_spec"):
+            st.session_state["last_spec"] = edited
+            st.rerun()
+
+
+def _deepen(ctx: dict, spec: dict, direction: str):
+    ctx_kwargs = _build_ctx_kwargs(ctx)
+    with st.spinner(f"Deepening: {direction}"):
+        try:
+            new_spec = llm.deepen_spec(
+                role=ctx["role"], ctx_kwargs=ctx_kwargs,
+                current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                post_op_day=ctx["post_op_day"], ampm=ctx["ampm"],
+                current_spec=spec, direction=direction,
+            )
+        except Exception as e:
+            st.error(f"Deepen failed: {e}")
+            return
+    st.session_state["last_spec"] = new_spec
+
+
+def _drilldown(ctx: dict, spec: dict, entity_type: str,
+               entity_id: str, entity_label: str):
+    ctx_kwargs = _build_ctx_kwargs(ctx)
+    with st.spinner(f"Drilling into {entity_type} = {entity_id}"):
+        try:
+            new_spec = llm.drilldown_spec(
+                role=ctx["role"], ctx_kwargs=ctx_kwargs,
+                current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                post_op_day=ctx["post_op_day"], ampm=ctx["ampm"],
+                current_spec=spec,
+                entity_type=entity_type, entity_id=entity_id,
+                entity_label=entity_label,
+            )
+        except Exception as e:
+            st.error(f"Drilldown failed: {e}")
+            return
+    st.session_state["last_spec"] = new_spec
 
 
 def main():

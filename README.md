@@ -15,6 +15,7 @@ cp .env.example .env
 # Fill in DEEPSEEK_API_KEY
 
 python seed.py          # generate mock CSVs into ./data
+python cache_specs.py rebuild   # optional: pre-bake fallback specs
 streamlit run app.py
 ```
 
@@ -29,6 +30,7 @@ data.py       DuckDB loader + SQL allow-list + role row filter
 seed.py       Parameterised mock data generator (stable vs. labile profiles)
 safety.py     Patient-side classifier router + fixed safety cards + nurse call
 data/         Generated CSVs
+cache_specs.py Pre-baked killer-prompt cache (fallback when LLM call fails)
 cache/        Serialised specs from rehearsed killer prompts (fallback if LLM fails)
 ```
 
