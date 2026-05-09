@@ -11,7 +11,7 @@ One underlying patient state is *refracted* into four role-specific UIs
 (doctor / nurse / patient / family) — each with different content,
 different language, and different boundaries.
 
-[**→ Slides (deck)**](docs/slides.md)  ·  [**→ Architecture**](docs/ARCHITECTURE.md)
+[**→ Slides (deck)**](docs/slides.md)  ·  [**→ Architecture**](docs/ARCHITECTURE.md)  ·  [**→ Slidev source**](docs/slides.slidev.md)
 
 </div>
 
@@ -19,7 +19,7 @@ different language, and different boundaries.
 
 ## Three patterns this project is claiming as new
 
-| | |
+| Pattern | What it means |
 |---|---|
 | **Refraction** | One truth → many UIs. The agent is a *prism*, not a renderer. It splits one patient state into role-specific views in real time. |
 | **Cognitive recasting** | Same fact → different language. Doctors see numbers; patients see plain words; family sees reassurance. Not permission filtering — semantic translation. |
@@ -131,14 +131,14 @@ seed.py           Parameterised stable/labile mock generator
 cache_specs.py   8 killer-prompt fallback cache (rebuild / list / lookup)
 data/             Generated CSVs (14 tables)
 cache/            Serialised specs from rehearsed prompts
-docs/             slides.md (deck) · ARCHITECTURE.md (full architecture) · images/
+docs/             slides.md (GitHub-renderable deck) · slides.slidev.md (Slidev source for `npx slidev`) · ARCHITECTURE.md · images/
 ```
 
 ---
 
 ## Tech stack
 
-| | |
+| Layer | Choice |
 |---|---|
 | LLM | **DeepSeek V3** via OpenAI-compatible SDK — one-line swap to Claude/GPT (`base_url`). Set `DEEPSEEK_MODEL` env var to try alternatives. |
 | Frontend | Streamlit ≥ 1.32 + Plotly subplots |
@@ -149,7 +149,7 @@ docs/             slides.md (deck) · ARCHITECTURE.md (full architecture) · ima
 
 ## Two patients drive the differentiation argument
 
-| | Wang Wei (P001) | Li Xiuying (P002) |
+| Aspect | Wang Wei (P001) | Li Xiuying (P002) |
 |---|---|---|
 | Profile | 32 M, athlete, no comorbidities | 71 F, DM2 + AF + prior MI + mild CKD |
 | Surgery | ORIF tibial plateau (Mon afternoon) | Total hip arthroplasty (Mon afternoon) |

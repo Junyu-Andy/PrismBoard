@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 .env
 cache/
+docs/node_modules/
+docs/package*.json
