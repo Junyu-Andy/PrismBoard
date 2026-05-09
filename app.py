@@ -349,7 +349,8 @@ def _generate_and_store(ctx: dict, query: str):
             spec = llm.generate_spec(
                 role=ctx["role"],
                 ctx_kwargs=ctx_kwargs,
-                current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                current_time=ctx["now"].strftime("%Y-%m-%d %H:%M:%S"),
+                current_date=ctx["now"].strftime("%Y-%m-%d"),
                 post_op_day=ctx["post_op_day"],
                 ampm=ctx["ampm"],
                 user_query=query,
@@ -453,7 +454,8 @@ def _deepen(ctx: dict, spec: dict, direction: str):
         try:
             new_spec = llm.deepen_spec(
                 role=ctx["role"], ctx_kwargs=ctx_kwargs,
-                current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                current_time=ctx["now"].strftime("%Y-%m-%d %H:%M:%S"),
+                current_date=ctx["now"].strftime("%Y-%m-%d"),
                 post_op_day=ctx["post_op_day"], ampm=ctx["ampm"],
                 current_spec=spec, direction=direction,
             )
@@ -470,7 +472,8 @@ def _drilldown(ctx: dict, spec: dict, entity_type: str,
         try:
             new_spec = llm.drilldown_spec(
                 role=ctx["role"], ctx_kwargs=ctx_kwargs,
-                current_time=ctx["now"].strftime("%a %Y-%m-%d %H:%M"),
+                current_time=ctx["now"].strftime("%Y-%m-%d %H:%M:%S"),
+                current_date=ctx["now"].strftime("%Y-%m-%d"),
                 post_op_day=ctx["post_op_day"], ampm=ctx["ampm"],
                 current_spec=spec,
                 entity_type=entity_type, entity_id=entity_id,

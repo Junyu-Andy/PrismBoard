@@ -42,8 +42,12 @@ FORBIDDEN_KEYWORDS = [
 ROLE_TABLE_DENY = {
     "doctor": set(),
     "nurse":  set(),
-    "patient": {"doctor_notes", "lab_results"},
-    "family":  {"doctor_notes", "lab_results", "glucose_logs", "vitals"},
+    "patient": {"doctor_notes", "lab_results", "comorbidities"},
+    # Family is the most restrictive: can only see overall status and
+    # tasks. No raw medical history, no clinical observations.
+    "family":  {"doctor_notes", "lab_results", "glucose_logs", "vitals",
+                "comorbidities", "home_medications", "surgeries",
+                "patient_questions"},
 }
 
 
@@ -70,6 +74,18 @@ def get_conn() -> duckdb.DuckDBPyConnection:
         conn.execute(
             f"CREATE TABLE {tbl} AS SELECT * FROM read_csv_auto('{path.as_posix()}', HEADER=TRUE)"
         )
+    # Demo time anchor as a callable - the LLM is told to use this
+    # instead of NOW() / CURRENT_TIMESTAMP. The mock data is anchored
+    # to 2026-05-07 10:00:00, while wall-clock time is whatever the
+    # demo machine actually says. demo_now() bridges that gap.
+    conn.execute(
+        "CREATE OR REPLACE MACRO demo_now() AS "
+        "TIMESTAMP '2026-05-07 10:00:00'"
+    )
+    conn.execute(
+        "CREATE OR REPLACE MACRO demo_today() AS "
+        "DATE '2026-05-07'"
+    )
     _conn = conn
     return conn
 

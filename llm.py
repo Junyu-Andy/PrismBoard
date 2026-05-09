@@ -58,7 +58,7 @@ def _call_with_tool(messages: list[dict]) -> dict:
         raise LLMError(f"Tool arguments not valid JSON: {e}") from e
 
 
-def generate_spec(role: str, ctx_kwargs: dict, current_time: str,
+def generate_spec(role: str, ctx_kwargs: dict, current_time: str, current_date: str,
                   post_op_day: int, ampm: str, user_query: str) -> dict:
     """Produce a dashboard spec for the user's natural-language query.
 
@@ -66,7 +66,7 @@ def generate_spec(role: str, ctx_kwargs: dict, current_time: str,
     """
     system = prompts.build_master_system(
         role=role, ctx_kwargs=ctx_kwargs,
-        current_time=current_time, post_op_day=post_op_day, ampm=ampm,
+        current_time=current_time, current_date=current_date, post_op_day=post_op_day, ampm=ampm,
     )
     messages = [
         {"role": "system", "content": system},
@@ -85,12 +85,12 @@ def generate_spec(role: str, ctx_kwargs: dict, current_time: str,
         return _call_with_tool(messages)
 
 
-def deepen_spec(role: str, ctx_kwargs: dict, current_time: str,
+def deepen_spec(role: str, ctx_kwargs: dict, current_time: str, current_date: str,
                 post_op_day: int, ampm: str,
                 current_spec: dict, direction: str) -> dict:
     system = prompts.build_master_system(
         role=role, ctx_kwargs=ctx_kwargs,
-        current_time=current_time, post_op_day=post_op_day, ampm=ampm,
+        current_time=current_time, current_date=current_date, post_op_day=post_op_day, ampm=ampm,
     )
     user = prompts.DEEPEN_PROMPT.format(
         deepen_direction=direction,
@@ -102,13 +102,13 @@ def deepen_spec(role: str, ctx_kwargs: dict, current_time: str,
     ])
 
 
-def drilldown_spec(role: str, ctx_kwargs: dict, current_time: str,
+def drilldown_spec(role: str, ctx_kwargs: dict, current_time: str, current_date: str,
                    post_op_day: int, ampm: str,
                    current_spec: dict,
                    entity_type: str, entity_id: str, entity_label: str) -> dict:
     system = prompts.build_master_system(
         role=role, ctx_kwargs=ctx_kwargs,
-        current_time=current_time, post_op_day=post_op_day, ampm=ampm,
+        current_time=current_time, current_date=current_date, post_op_day=post_op_day, ampm=ampm,
     )
     user = prompts.DRILLDOWN_PROMPT.format(
         entity_type=entity_type,

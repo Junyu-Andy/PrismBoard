@@ -86,6 +86,28 @@ Always call the tool `generate_dashboard` with these fields:
   written_at, surgery_date.
 - JOIN at most 3 tables.
 
+# CRITICAL time rule
+The mock data is anchored to {current_time}. The wall-clock SQL
+functions NOW(), CURRENT_TIMESTAMP, CURRENT_DATE, CURRENT_TIME and
+TODAY() all return the actual system time, which is NOT in our data,
+so any query that uses them will return zero rows. Always use:
+
+  TIMESTAMP '{current_time}'   -- for the current moment
+  DATE '{current_date}'        -- for today's date
+
+Or use the helper macros that are already registered on the database:
+
+  demo_now()      -> TIMESTAMP '{current_time}'
+  demo_today()    -> DATE '{current_date}'
+
+Examples:
+  WRONG: WHERE recorded_at >= NOW() - INTERVAL '24 hours'
+  RIGHT: WHERE recorded_at >= demo_now() - INTERVAL '24 hours'
+  RIGHT: WHERE recorded_at >= TIMESTAMP '{current_time}' - INTERVAL '24 hours'
+
+  WRONG: WHERE DATE(scheduled_at) = CURRENT_DATE
+  RIGHT: WHERE DATE(scheduled_at) = demo_today()
+
 # Role permission constraint
 {ROLE_PERMISSION_CLAUSE}
 
@@ -167,13 +189,21 @@ ROLE_CONTEXTS = {
             "today' summary.\n"
             "Cares about: overall status, any new conclusions from the doctor, "
             "nurse feedback, whether visiting is OK.\n"
-            "Translate everything into everyday language. No raw data."
+            "Translate everything into everyday language. No raw data, no charts."
         ),
         "permission": (
             "Only patient_id = '{patient_id}'.\n"
-            "Forbidden tables: vitals (raw), lab_results, glucose_logs, "
-            "doctor_notes.\n"
-            "care_tasks: only show family_facilitate items and overall progress."
+            "Allowed tables: patients, care_tasks (only shift-level summary), "
+            "medications (only counts of administered today, never the drug list "
+            "with doses), family_communications.\n"
+            "Forbidden tables: vitals, lab_results, glucose_logs, doctor_notes, "
+            "comorbidities, home_medications, surgeries, patient_questions.\n"
+            "OUTPUT RULE: family layouts must be text_summary panels only - "
+            "no vital_trajectory, no line_chart / bar_chart / scatter / "
+            "distribution / heatmap, and no detail tables. Each panel has "
+            "config.content set to plain prose; data_query must be empty. "
+            "Use 1-3 panels total. Never describe a number. Use words like "
+            "'stable', 'improving', 'a bit slower than yesterday', 'on track'."
         ),
     },
 }
