@@ -11,7 +11,7 @@ One underlying patient state is *refracted* into four role-specific UIs
 (doctor / nurse / patient / family) — each with different content,
 different language, and different boundaries.
 
-[**→ Slides (deck)**](docs/slides.md)  ·  [**→ Architecture**](docs/ARCHITECTURE.md)  ·  [**→ Slidev source**](docs/slides.slidev.md)
+[**📄 Deck (PDF)**](docs/prisma-deck.pdf)  ·  [**→ Deck (GitHub-readable)**](docs/slides.md)  ·  [**→ Architecture**](docs/ARCHITECTURE.md)  ·  [**→ Slidev source**](docs/slides.slidev.md)
 
 </div>
 
