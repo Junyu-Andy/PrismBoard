@@ -11,7 +11,7 @@ One underlying patient state is *refracted* into four role-specific UIs
 (doctor / nurse / patient / family) — each with different content,
 different language, and different boundaries.
 
-[**→ Slides (deck)**](docs/slides.md)  ·  [**→ Architecture**](docs/ARCHITECTURE.md)
+[**→ Slides (deck)**](docs/slides.md)  ·  [**→ Architecture**](docs/ARCHITECTURE.md)  ·  [**→ Slidev source**](docs/slides.slidev.md)
 
 </div>
 
@@ -131,7 +131,7 @@ seed.py           Parameterised stable/labile mock generator
 cache_specs.py   8 killer-prompt fallback cache (rebuild / list / lookup)
 data/             Generated CSVs (14 tables)
 cache/            Serialised specs from rehearsed prompts
-docs/             slides.md (deck) · ARCHITECTURE.md (full architecture) · images/
+docs/             slides.md (GitHub-renderable deck) · slides.slidev.md (Slidev source for `npx slidev`) · ARCHITECTURE.md · images/
 ```
 
 ---
