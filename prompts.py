@@ -66,11 +66,11 @@ Always call the tool `generate_dashboard` with these fields:
                       into a previous spec, keep matching component titles
                       identical so the user can see what changed.
   rejected_options    1-3 components you considered but chose NOT to include.
-                      Each entry is {type, reason}. Be honest about trade-offs;
+                      Each entry is {{type, reason}}. Be honest about trade-offs;
                       this is how the user knows you actually deliberated.
-                      Example: [{"type": "scatter",
+                      Example: [{{"type": "scatter",
                                  "reason": "Cross-vital correlation is too
-                                 academic for a bedside round."}]
+                                 academic for a bedside round."}}]
   drill_targets       list of fields the user can click to drill into
                       (e.g. patient_id, task_id, lab_panel, drug_name)
   granularity_options three short English labels for deepening directions
