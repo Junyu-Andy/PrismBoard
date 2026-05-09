@@ -93,6 +93,8 @@ def _ctx_kwargs_for(prompt: dict, patient: dict, doctor=None, nurse=None,
 
 def rebuild(force: bool = False):
     # Imports live here so the runtime doesn't require openai/data unless rebuilding.
+    from dotenv import load_dotenv
+    load_dotenv()
     import data
     import llm
 
