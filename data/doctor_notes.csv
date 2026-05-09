@@ -1,0 +1,9 @@
+patient_id,written_at,doctor_id,note_type,content
+P001,2026-05-04 17:00:00,D001,order,"Post-op orders: NPO x 4h, then advance diet as tolerated. Acetaminophen + ibuprofen scheduled. Enoxaparin 40mg SC daily x 5d. Cefuroxime 750mg IV q8h x 3d. NWB right LE x 2d, then PWB."
+P001,2026-05-05 21:00:00,D001,rounds,"POD#1: vitals stable, pain controlled, ambulated 10m with crutches. Wound clean & dry. Plan: continue current regimen, advance mobility."
+P001,2026-05-06 21:00:00,D001,discharge_planning,POD#2: meets discharge criteria pending PT clearance and 24h tolerance of full diet. Plan discharge POD#3 with PT follow-up at 2 weeks.
+P002,2026-05-04 19:00:00,D001,order,"Post-op orders: telemetry monitoring x 48h. Resume basal insulin at 80%, sliding-scale aspart pre-meal + bedtime. Hold rivaroxaban x 24h, restart 15mg PO daily. Metoprolol 23.75mg PO BID. Cefuroxime 750mg IV q8h x 3d. Endocrine + cardiology consults requested."
+P002,2026-05-04 23:00:00,D003,consult,"Endocrine: blood glucose 11.8 mmol/L. Recommend basal-bolus insulin per sliding scale, target 6-10 mmol/L. Avoid hypoglycaemia. Resume home insulin glargine at reduced dose."
+P002,2026-05-05 03:00:00,D004,consult,Cardiology: AF rate-controlled on metoprolol. Hold rivaroxaban x 24h then restart at therapeutic dose. Monitor for post-op AF. ECG unchanged from baseline.
+P002,2026-05-05 21:00:00,D001,rounds,"POD#1: BP 95-160 swings, HR controlled, glucose 8-14, mild orthostatic dizziness on sit-up. Plan: reinforce IV fluids, recheck Hgb, continue endocrine regimen."
+P002,2026-05-06 21:00:00,D001,rounds,"POD#2: vitals borderline, pain 6/10, glucose still labile. Continue current plan; PT to defer ambulation today, sit-to-stand only. Discharge not before POD#7."

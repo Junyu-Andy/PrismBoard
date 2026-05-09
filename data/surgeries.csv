@@ -1,0 +1,7 @@
+id,patient_id,surgery_type,started_at,ended_at,duration_minutes,surgeon_id,anesthesia_type,blood_loss_ml,complications_text
+S001,P001,ORIF (right tibial plateau),2026-05-04 13:00:00,2026-05-04 15:30:00,150,D001,Spinal + sedation,180,Uneventful.
+S002,P002,Total hip arthroplasty (left),2026-05-04 13:00:00,2026-05-04 17:00:00,240,D001,General,520,Anticoagulation reversal extended OR time; haemostasis adequate.
+S003,P003,ORIF (left ankle),2026-05-04 13:00:00,2026-05-04 14:50:00,110,D002,Regional,90,Uneventful.
+S004,P004,ORIF (right wrist),2026-05-04 13:00:00,2026-05-04 14:30:00,90,D002,Regional,60,Uneventful.
+S005,P005,Hemiarthroplasty,2026-05-04 13:00:00,2026-05-04 16:00:00,180,D001,General,380,"Mild intra-op hypotension, responsive to fluids."
+S006,P006,Tension band wiring,2026-05-04 13:00:00,2026-05-04 14:40:00,100,D002,General,100,Uneventful.

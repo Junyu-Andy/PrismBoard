@@ -1,0 +1,134 @@
+patient_id,scheduled_at,drug_name,dose,route,status,administered_at,administered_by
+P001,2026-05-04 17:30:00,Acetaminophen,500 mg,PO,administered,2026-05-04 17:53:00,N006
+P001,2026-05-04 23:30:00,Acetaminophen,500 mg,PO,administered,2026-05-04 23:53:00,N008
+P001,2026-05-05 05:30:00,Acetaminophen,500 mg,PO,administered,2026-05-05 05:35:00,N009
+P001,2026-05-05 11:30:00,Acetaminophen,500 mg,PO,administered,2026-05-05 11:47:00,N002
+P001,2026-05-05 17:30:00,Acetaminophen,500 mg,PO,administered,2026-05-05 17:28:00,N004
+P001,2026-05-05 23:30:00,Acetaminophen,500 mg,PO,administered,2026-05-05 23:39:00,N009
+P001,2026-05-06 05:30:00,Acetaminophen,500 mg,PO,administered,2026-05-06 05:41:00,N009
+P001,2026-05-06 11:30:00,Acetaminophen,500 mg,PO,administered,2026-05-06 11:50:00,N002
+P001,2026-05-06 17:30:00,Acetaminophen,500 mg,PO,administered,2026-05-06 17:37:00,N004
+P001,2026-05-06 23:30:00,Acetaminophen,500 mg,PO,administered,2026-05-06 23:54:00,N008
+P001,2026-05-07 05:30:00,Acetaminophen,500 mg,PO,administered,2026-05-07 05:46:00,N007
+P001,2026-05-07 11:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-07 17:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-07 23:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-08 05:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-08 11:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-08 17:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-08 23:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-09 05:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-09 11:30:00,Acetaminophen,500 mg,PO,scheduled,,
+P001,2026-05-04 16:30:00,Cefuroxime,750 mg,IV,administered,2026-05-04 16:29:00,N004
+P001,2026-05-05 00:30:00,Cefuroxime,750 mg,IV,administered,2026-05-05 00:26:00,N008
+P001,2026-05-05 08:30:00,Cefuroxime,750 mg,IV,administered,2026-05-05 08:48:00,N010
+P001,2026-05-05 16:30:00,Cefuroxime,750 mg,IV,administered,2026-05-05 16:30:00,N004
+P001,2026-05-06 00:30:00,Cefuroxime,750 mg,IV,administered,2026-05-06 00:55:00,N007
+P001,2026-05-06 08:30:00,Cefuroxime,750 mg,IV,refused,,
+P001,2026-05-06 16:30:00,Cefuroxime,750 mg,IV,administered,2026-05-06 16:25:00,N005
+P001,2026-05-07 00:30:00,Cefuroxime,750 mg,IV,administered,2026-05-07 00:40:00,N009
+P001,2026-05-07 08:30:00,Cefuroxime,750 mg,IV,administered,2026-05-07 08:44:00,N010
+P001,2026-05-05 03:30:00,Enoxaparin,40 mg,SC,administered,2026-05-05 03:43:00,N009
+P001,2026-05-06 03:30:00,Enoxaparin,40 mg,SC,administered,2026-05-06 03:38:00,N008
+P001,2026-05-07 03:30:00,Enoxaparin,40 mg,SC,administered,2026-05-07 03:44:00,N007
+P001,2026-05-08 03:30:00,Enoxaparin,40 mg,SC,scheduled,,
+P001,2026-05-09 03:30:00,Enoxaparin,40 mg,SC,scheduled,,
+P001,2026-05-04 19:30:00,Ibuprofen,400 mg,PO,administered,2026-05-04 19:42:00,N005
+P001,2026-05-05 03:30:00,Ibuprofen,400 mg,PO,administered,2026-05-05 03:42:00,N007
+P001,2026-05-05 11:30:00,Ibuprofen,400 mg,PO,administered,2026-05-05 11:29:00,N001
+P001,2026-05-05 19:30:00,Ibuprofen,400 mg,PO,administered,2026-05-05 19:26:00,N004
+P001,2026-05-06 03:30:00,Ibuprofen,400 mg,PO,administered,2026-05-06 03:46:00,N009
+P001,2026-05-06 11:30:00,Ibuprofen,400 mg,PO,administered,2026-05-06 11:34:00,N003
+P001,2026-05-06 19:30:00,Ibuprofen,400 mg,PO,administered,2026-05-06 19:26:00,N004
+P001,2026-05-07 03:30:00,Ibuprofen,400 mg,PO,administered,2026-05-07 03:30:00,N007
+P001,2026-05-07 11:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P001,2026-05-07 19:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P001,2026-05-08 03:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P001,2026-05-08 11:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P001,2026-05-08 19:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P001,2026-05-09 03:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P001,2026-05-09 11:30:00,Ibuprofen,400 mg,PO,scheduled,,
+P002,2026-05-05 13:00:00,Insulin glargine,16 U,SC,administered,2026-05-05 13:14:00,N002
+P002,2026-05-06 13:00:00,Insulin glargine,16 U,SC,administered,2026-05-06 13:18:00,N003
+P002,2026-05-07 13:00:00,Insulin glargine,16 U,SC,scheduled,,
+P002,2026-05-08 13:00:00,Insulin glargine,16 U,SC,scheduled,,
+P002,2026-05-05 11:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-05 10:57:00,N003
+P002,2026-05-05 17:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-05 17:23:00,N005
+P002,2026-05-05 23:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-05 23:19:00,N008
+P002,2026-05-06 05:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-06 04:57:00,N008
+P002,2026-05-06 11:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-06 10:58:00,N003
+P002,2026-05-06 17:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-06 17:08:00,N006
+P002,2026-05-06 23:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-06 23:01:00,N009
+P002,2026-05-07 05:00:00,Insulin aspart,4-8 U,SC,administered,2026-05-07 05:13:00,N009
+P002,2026-05-07 11:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-07 17:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-07 23:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-08 05:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-08 11:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-08 17:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-08 23:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-09 05:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-09 11:00:00,Insulin aspart,4-8 U,SC,scheduled,,
+P002,2026-05-05 13:00:00,Amlodipine,5 mg,PO,administered,2026-05-05 13:11:00,N001
+P002,2026-05-06 13:00:00,Amlodipine,5 mg,PO,administered,2026-05-06 13:17:00,N003
+P002,2026-05-07 13:00:00,Amlodipine,5 mg,PO,scheduled,,
+P002,2026-05-08 13:00:00,Amlodipine,5 mg,PO,scheduled,,
+P002,2026-05-05 17:00:00,Rivaroxaban,15 mg,PO,administered,2026-05-05 17:22:00,N005
+P002,2026-05-06 17:00:00,Rivaroxaban,15 mg,PO,administered,2026-05-06 17:13:00,N006
+P002,2026-05-07 17:00:00,Rivaroxaban,15 mg,PO,scheduled,,
+P002,2026-05-08 17:00:00,Rivaroxaban,15 mg,PO,scheduled,,
+P002,2026-05-05 15:00:00,Atorvastatin,20 mg,PO,administered,2026-05-05 14:59:00,N010
+P002,2026-05-06 15:00:00,Atorvastatin,20 mg,PO,administered,2026-05-06 15:15:00,N005
+P002,2026-05-07 15:00:00,Atorvastatin,20 mg,PO,scheduled,,
+P002,2026-05-08 15:00:00,Atorvastatin,20 mg,PO,scheduled,,
+P002,2026-05-05 13:00:00,Metoprolol,23.75 mg,PO,administered,2026-05-05 13:00:00,N002
+P002,2026-05-06 01:00:00,Metoprolol,23.75 mg,PO,administered,2026-05-06 01:01:00,N007
+P002,2026-05-06 13:00:00,Metoprolol,23.75 mg,PO,administered,2026-05-06 13:09:00,N001
+P002,2026-05-07 01:00:00,Metoprolol,23.75 mg,PO,administered,2026-05-07 01:01:00,N009
+P002,2026-05-07 13:00:00,Metoprolol,23.75 mg,PO,scheduled,,
+P002,2026-05-08 01:00:00,Metoprolol,23.75 mg,PO,scheduled,,
+P002,2026-05-08 13:00:00,Metoprolol,23.75 mg,PO,scheduled,,
+P002,2026-05-09 01:00:00,Metoprolol,23.75 mg,PO,scheduled,,
+P002,2026-05-04 19:00:00,Acetaminophen,500 mg,PO,administered,2026-05-04 19:08:00,N004
+P002,2026-05-05 01:00:00,Acetaminophen,500 mg,PO,administered,2026-05-05 01:12:00,N009
+P002,2026-05-05 07:00:00,Acetaminophen,500 mg,PO,administered,2026-05-05 07:15:00,N002
+P002,2026-05-05 13:00:00,Acetaminophen,500 mg,PO,administered,2026-05-05 13:03:00,N001
+P002,2026-05-05 19:00:00,Acetaminophen,500 mg,PO,administered,2026-05-05 19:11:00,N006
+P002,2026-05-06 01:00:00,Acetaminophen,500 mg,PO,administered,2026-05-06 00:55:00,N007
+P002,2026-05-06 07:00:00,Acetaminophen,500 mg,PO,administered,2026-05-06 07:05:00,N010
+P002,2026-05-06 13:00:00,Acetaminophen,500 mg,PO,administered,2026-05-06 13:14:00,N001
+P002,2026-05-06 19:00:00,Acetaminophen,500 mg,PO,administered,2026-05-06 19:01:00,N005
+P002,2026-05-07 01:00:00,Acetaminophen,500 mg,PO,administered,2026-05-07 01:24:00,N009
+P002,2026-05-07 07:00:00,Acetaminophen,500 mg,PO,administered,2026-05-07 07:10:00,N001
+P002,2026-05-07 13:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-07 19:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-08 01:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-08 07:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-08 13:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-08 19:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-09 01:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-09 07:00:00,Acetaminophen,500 mg,PO,scheduled,,
+P002,2026-05-04 21:00:00,Tramadol,50 mg,PO,administered,2026-05-04 21:10:00,N004
+P002,2026-05-05 05:00:00,Tramadol,50 mg,PO,administered,2026-05-05 05:23:00,N009
+P002,2026-05-05 13:00:00,Tramadol,50 mg,PO,administered,2026-05-05 13:09:00,N010
+P002,2026-05-05 21:00:00,Tramadol,50 mg,PO,administered,2026-05-05 20:56:00,N006
+P002,2026-05-06 05:00:00,Tramadol,50 mg,PO,administered,2026-05-06 05:18:00,N009
+P002,2026-05-06 13:00:00,Tramadol,50 mg,PO,administered,2026-05-06 13:12:00,N001
+P002,2026-05-06 21:00:00,Tramadol,50 mg,PO,administered,2026-05-06 21:16:00,N005
+P002,2026-05-07 05:00:00,Tramadol,50 mg,PO,administered,2026-05-07 05:23:00,N008
+P002,2026-05-07 13:00:00,Tramadol,50 mg,PO,scheduled,,
+P002,2026-05-07 21:00:00,Tramadol,50 mg,PO,scheduled,,
+P002,2026-05-08 05:00:00,Tramadol,50 mg,PO,scheduled,,
+P002,2026-05-04 18:00:00,Cefuroxime,750 mg,IV,administered,2026-05-04 17:59:00,N005
+P002,2026-05-05 02:00:00,Cefuroxime,750 mg,IV,administered,2026-05-05 02:05:00,N008
+P002,2026-05-05 10:00:00,Cefuroxime,750 mg,IV,administered,2026-05-05 10:21:00,N002
+P002,2026-05-05 18:00:00,Cefuroxime,750 mg,IV,administered,2026-05-05 18:07:00,N004
+P002,2026-05-06 02:00:00,Cefuroxime,750 mg,IV,administered,2026-05-06 02:22:00,N008
+P002,2026-05-06 10:00:00,Cefuroxime,750 mg,IV,administered,2026-05-06 10:05:00,N001
+P002,2026-05-06 18:00:00,Cefuroxime,750 mg,IV,administered,2026-05-06 17:57:00,N005
+P002,2026-05-07 02:00:00,Cefuroxime,750 mg,IV,administered,2026-05-07 02:06:00,N008
+P002,2026-05-07 10:00:00,Cefuroxime,750 mg,IV,scheduled,,
+P002,2026-05-04 19:00:00,Pantoprazole,40 mg,IV,administered,2026-05-04 19:04:00,N004
+P002,2026-05-05 19:00:00,Pantoprazole,40 mg,IV,administered,2026-05-05 19:00:00,N004
+P002,2026-05-06 19:00:00,Pantoprazole,40 mg,IV,administered,2026-05-06 18:56:00,N004
+P002,2026-05-07 19:00:00,Pantoprazole,40 mg,IV,scheduled,,

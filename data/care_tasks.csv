@@ -1,0 +1,85 @@
+patient_id,scheduled_at,task_type,description,priority,status,completed_at,completed_by_nurse_id,shift_tag
+P001,2026-05-04 19:30:00,vitals,Vitals check (evening),routine,completed,2026-05-04 19:46:00,N006,afternoon
+P001,2026-05-05 07:30:00,vitals,Vitals check,routine,completed,2026-05-05 07:36:00,N001,morning
+P001,2026-05-05 09:00:00,dressing,Wound dressing inspection,routine,completed,2026-05-05 09:17:00,N001,morning
+P001,2026-05-05 11:00:00,mobility,Assisted ambulation,routine,completed,2026-05-05 11:05:00,N001,morning
+P001,2026-05-05 14:00:00,pain_assess,Pain reassessment (NRS),routine,completed,2026-05-05 14:03:00,N010,morning
+P001,2026-05-05 19:30:00,vitals,Vitals check (evening),routine,completed,2026-05-05 19:45:00,N004,afternoon
+P001,2026-05-06 07:30:00,vitals,Vitals check,routine,completed,2026-05-06 07:37:00,N010,morning
+P001,2026-05-06 09:00:00,dressing,Wound dressing inspection,routine,completed,2026-05-06 09:21:00,N010,morning
+P001,2026-05-06 11:00:00,mobility,Assisted ambulation,routine,completed,2026-05-06 11:11:00,N003,morning
+P001,2026-05-06 14:00:00,pain_assess,Pain reassessment (NRS),routine,completed,2026-05-06 14:08:00,N003,morning
+P001,2026-05-06 19:30:00,vitals,Vitals check (evening),routine,completed,2026-05-06 19:53:00,N006,afternoon
+P001,2026-05-06 10:30:00,mobilization_milestone,Independent transfer bed-to-chair,routine,completed,2026-05-06 10:49:00,N001,morning
+P001,2026-05-07 07:30:00,vitals,Vitals check,routine,completed,2026-05-07 07:46:00,N001,morning
+P001,2026-05-07 09:00:00,dressing,Wound dressing inspection,routine,completed,2026-05-07 09:04:00,N002,morning
+P001,2026-05-07 11:00:00,mobility,Assisted ambulation,routine,scheduled,,,morning
+P001,2026-05-07 14:00:00,pain_assess,Pain reassessment (NRS),routine,scheduled,,,morning
+P001,2026-05-07 19:30:00,vitals,Vitals check (evening),routine,scheduled,,,afternoon
+P001,2026-05-08 07:30:00,vitals,Vitals check,routine,scheduled,,,morning
+P001,2026-05-08 09:00:00,dressing,Wound dressing inspection,routine,scheduled,,,morning
+P001,2026-05-08 11:00:00,mobility,Assisted ambulation,routine,scheduled,,,morning
+P001,2026-05-08 14:00:00,pain_assess,Pain reassessment (NRS),routine,scheduled,,,morning
+P001,2026-05-08 19:30:00,vitals,Vitals check (evening),routine,scheduled,,,afternoon
+P002,2026-05-04 15:00:00,mobility,Assisted sit-up + leg exercises,routine,completed,2026-05-04 15:21:00,N004,afternoon
+P002,2026-05-04 17:30:00,glucose,Pre-dinner glucose,high,completed,2026-05-04 17:43:00,N005,afternoon
+P002,2026-05-04 19:00:00,vitals,Vitals check (evening),high,completed,2026-05-04 19:07:00,N005,afternoon
+P002,2026-05-04 19:30:00,glucose,Post-dinner glucose,high,completed,2026-05-04 19:53:00,N006,afternoon
+P002,2026-05-04 21:00:00,family_facilitate,Family update call,routine,completed,2026-05-04 21:12:00,N005,afternoon
+P002,2026-05-04 22:00:00,glucose,Bedtime glucose,high,completed,2026-05-04 22:17:00,N005,afternoon
+P002,2026-05-05 06:30:00,glucose,Fasting glucose check,high,completed,2026-05-05 06:34:00,N007,night
+P002,2026-05-05 07:00:00,vitals,Vitals check incl. SpO2 + telemetry,high,completed,2026-05-05 07:05:00,N010,morning
+P002,2026-05-05 08:00:00,glucose,Post-breakfast glucose,high,completed,2026-05-05 08:17:00,N003,morning
+P002,2026-05-05 09:00:00,dressing,Wound dressing + drain inspection,routine,completed,2026-05-05 09:07:00,N010,morning
+P002,2026-05-05 10:00:00,meal,Diabetic meal supervision,routine,completed,2026-05-05 10:13:00,N003,morning
+P002,2026-05-05 11:30:00,glucose,Pre-lunch glucose,high,completed,2026-05-05 11:48:00,N002,morning
+P002,2026-05-05 13:30:00,glucose,Post-lunch glucose,high,completed,2026-05-05 13:44:00,N001,morning
+P002,2026-05-05 14:00:00,pain_assess,Pain reassessment (NRS),routine,completed,2026-05-05 14:12:00,N001,morning
+P002,2026-05-05 15:00:00,mobility,Assisted sit-up + leg exercises,routine,completed,2026-05-05 15:22:00,N006,afternoon
+P002,2026-05-05 17:30:00,glucose,Pre-dinner glucose,high,completed,2026-05-05 17:41:00,N004,afternoon
+P002,2026-05-05 19:00:00,vitals,Vitals check (evening),high,completed,2026-05-05 19:16:00,N006,afternoon
+P002,2026-05-05 19:30:00,glucose,Post-dinner glucose,high,completed,2026-05-05 19:50:00,N005,afternoon
+P002,2026-05-05 21:00:00,family_facilitate,Family update call,routine,completed,2026-05-05 21:09:00,N005,afternoon
+P002,2026-05-05 22:00:00,glucose,Bedtime glucose,high,completed,2026-05-05 22:09:00,N006,afternoon
+P002,2026-05-06 06:30:00,glucose,Fasting glucose check,high,completed,2026-05-06 06:37:00,N009,night
+P002,2026-05-06 07:00:00,vitals,Vitals check incl. SpO2 + telemetry,high,completed,2026-05-06 07:14:00,N010,morning
+P002,2026-05-06 08:00:00,glucose,Post-breakfast glucose,high,completed,2026-05-06 08:12:00,N001,morning
+P002,2026-05-06 09:00:00,dressing,Wound dressing + drain inspection,routine,completed,2026-05-06 09:24:00,N002,morning
+P002,2026-05-06 10:00:00,meal,Diabetic meal supervision,routine,completed,2026-05-06 10:15:00,N010,morning
+P002,2026-05-06 11:30:00,glucose,Pre-lunch glucose,high,completed,2026-05-06 11:49:00,N003,morning
+P002,2026-05-06 13:30:00,glucose,Post-lunch glucose,high,completed,2026-05-06 13:37:00,N002,morning
+P002,2026-05-06 14:00:00,pain_assess,Pain reassessment (NRS),routine,completed,2026-05-06 14:25:00,N001,morning
+P002,2026-05-06 15:00:00,mobility,Assisted sit-up + leg exercises,routine,completed,2026-05-06 15:20:00,N006,afternoon
+P002,2026-05-06 17:30:00,glucose,Pre-dinner glucose,high,completed,2026-05-06 17:35:00,N005,afternoon
+P002,2026-05-06 19:00:00,vitals,Vitals check (evening),high,completed,2026-05-06 19:21:00,N006,afternoon
+P002,2026-05-06 19:30:00,glucose,Post-dinner glucose,high,completed,2026-05-06 19:42:00,N005,afternoon
+P002,2026-05-06 21:00:00,family_facilitate,Family update call,routine,completed,2026-05-06 21:05:00,N006,afternoon
+P002,2026-05-06 22:00:00,glucose,Bedtime glucose,high,completed,2026-05-06 22:07:00,N005,afternoon
+P002,2026-05-07 06:30:00,glucose,Fasting glucose check,high,completed,2026-05-07 06:44:00,N008,night
+P002,2026-05-07 07:00:00,vitals,Vitals check incl. SpO2 + telemetry,high,completed,2026-05-07 07:21:00,N001,morning
+P002,2026-05-07 08:00:00,glucose,Post-breakfast glucose,high,completed,2026-05-07 08:23:00,N001,morning
+P002,2026-05-07 09:00:00,dressing,Wound dressing + drain inspection,routine,completed,2026-05-07 09:12:00,N010,morning
+P002,2026-05-07 10:00:00,meal,Diabetic meal supervision,routine,in_progress,,,morning
+P002,2026-05-07 11:30:00,glucose,Pre-lunch glucose,high,scheduled,,,morning
+P002,2026-05-07 13:30:00,glucose,Post-lunch glucose,high,scheduled,,,morning
+P002,2026-05-07 14:00:00,pain_assess,Pain reassessment (NRS),routine,scheduled,,,morning
+P002,2026-05-07 15:00:00,mobility,Assisted sit-up + leg exercises,routine,scheduled,,,afternoon
+P002,2026-05-07 17:30:00,glucose,Pre-dinner glucose,high,scheduled,,,afternoon
+P002,2026-05-07 19:00:00,vitals,Vitals check (evening),high,scheduled,,,afternoon
+P002,2026-05-07 19:30:00,glucose,Post-dinner glucose,high,scheduled,,,afternoon
+P002,2026-05-07 21:00:00,family_facilitate,Family update call,routine,scheduled,,,afternoon
+P002,2026-05-07 22:00:00,glucose,Bedtime glucose,high,scheduled,,,afternoon
+P002,2026-05-08 06:30:00,glucose,Fasting glucose check,high,scheduled,,,night
+P002,2026-05-08 07:00:00,vitals,Vitals check incl. SpO2 + telemetry,high,scheduled,,,morning
+P002,2026-05-08 08:00:00,glucose,Post-breakfast glucose,high,scheduled,,,morning
+P002,2026-05-08 09:00:00,dressing,Wound dressing + drain inspection,routine,scheduled,,,morning
+P002,2026-05-08 10:00:00,meal,Diabetic meal supervision,routine,scheduled,,,morning
+P002,2026-05-08 11:30:00,glucose,Pre-lunch glucose,high,scheduled,,,morning
+P002,2026-05-08 13:30:00,glucose,Post-lunch glucose,high,scheduled,,,morning
+P002,2026-05-08 14:00:00,pain_assess,Pain reassessment (NRS),routine,scheduled,,,morning
+P002,2026-05-08 15:00:00,mobility,Assisted sit-up + leg exercises,routine,scheduled,,,afternoon
+P002,2026-05-08 17:30:00,glucose,Pre-dinner glucose,high,scheduled,,,afternoon
+P002,2026-05-08 19:00:00,vitals,Vitals check (evening),high,scheduled,,,afternoon
+P002,2026-05-08 19:30:00,glucose,Post-dinner glucose,high,scheduled,,,afternoon
+P002,2026-05-08 21:00:00,family_facilitate,Family update call,routine,scheduled,,,afternoon
+P002,2026-05-08 22:00:00,glucose,Bedtime glucose,high,scheduled,,,afternoon

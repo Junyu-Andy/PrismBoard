@@ -1,0 +1,8 @@
+patient_id,recorded_at,family_name,relationship,channel,summary
+P001,2026-05-05 23:00:00,Wang Tao,brother,visit,"Brother visited for 30min, brought clean clothes; updated on smooth recovery."
+P001,2026-05-06 07:00:00,Liu Jia,wife,phone,Wife asked about discharge; informed POD#3 likely.
+P002,2026-05-05 09:00:00,Li Min,daughter,phone,"Daughter anxious; explained ICU not needed, telemetry monitoring overnight, glucose stabilising."
+P002,2026-05-06 00:00:00,Li Min,daughter,visit,"Daughter visited 1h; reviewed care plan, glycaemic targets, anticoagulation restart timing."
+P002,2026-05-06 09:00:00,Li Qiang,son,phone,Son requested cardiology update; provided summary of consult.
+P002,2026-05-06 21:00:00,Li Min,daughter,message,"Daughter messaged for morning status; replied stable, glucose 9.2, plan unchanged."
+P002,2026-05-06 22:00:00,Li Min,daughter,phone,Daughter asking about safe visit time; recommended after 2pm when PT done.
