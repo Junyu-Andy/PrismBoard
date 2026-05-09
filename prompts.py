@@ -18,9 +18,11 @@ Now: {current_time}  (POD#{post_op_day}, {ampm} of post-op day {post_op_day})
 # Database schema
 Use these tables and columns exactly. Do NOT invent fields.
 
-patients(id, name, age, gender, blood_type, ward, bed,
+patients(patient_id, name, age, gender, blood_type, ward, bed,
          admission_date, surgery_date, primary_diagnosis, surgery_type,
          attending_doctor_id, primary_nurse_id, profile_summary)
+-- IMPORTANT: every table (including patients itself) uses `patient_id`
+-- as the patient column. There is no `id` column on patients.
 comorbidities(patient_id, condition, severity, since_date)
 home_medications(patient_id, drug_name, dosage, frequency)
 surgeries(id, patient_id, surgery_type, started_at, ended_at,

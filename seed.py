@@ -55,7 +55,7 @@ NURSES = [
 # ---------------------------------------------------------------------- patients
 PATIENTS = [
     {
-        "id": "P001", "name": "Wang Wei", "age": 32, "gender": "M", "blood_type": "A+",
+        "patient_id": "P001", "name": "Wang Wei", "age": 32, "gender": "M", "blood_type": "A+",
         "ward": "Ortho-3", "bed": "12",
         "admission_date": ADMISSION_DT.date(), "surgery_date": SURGERY_START.date(),
         "primary_diagnosis": "Closed tibial plateau fracture (right)",
@@ -65,7 +65,7 @@ PATIENTS = [
         "_profile": "stable",
     },
     {
-        "id": "P002", "name": "Li Xiuying", "age": 71, "gender": "F", "blood_type": "B+",
+        "patient_id": "P002", "name": "Li Xiuying", "age": 71, "gender": "F", "blood_type": "B+",
         "ward": "Ortho-3", "bed": "08",
         "admission_date": ADMISSION_DT.date(), "surgery_date": SURGERY_START.date(),
         "primary_diagnosis": "Femoral neck fracture (left)",
@@ -74,22 +74,22 @@ PATIENTS = [
         "profile_summary": "71F with DM2, HTN, AF, prior MI, mild CKD; THA for femoral neck fracture; complex course, ongoing glycaemic and anticoagulation management; discharge POD#7+.",
         "_profile": "labile",
     },
-    {"id":"P003","name":"Zhao Gang","age":54,"gender":"M","blood_type":"O+","ward":"Ortho-3","bed":"05",
+    {"patient_id":"P003","name":"Zhao Gang","age":54,"gender":"M","blood_type":"O+","ward":"Ortho-3","bed":"05",
      "admission_date":ADMISSION_DT.date(),"surgery_date":SURGERY_START.date(),
      "primary_diagnosis":"Ankle fracture (left)","surgery_type":"ORIF (left ankle)",
      "attending_doctor_id":"D002","primary_nurse_id":"N002",
      "profile_summary":"54M, ORIF ankle, uncomplicated.","_profile":"stable"},
-    {"id":"P004","name":"Liu Hong","age":63,"gender":"F","blood_type":"A-","ward":"Ortho-3","bed":"07",
+    {"patient_id":"P004","name":"Liu Hong","age":63,"gender":"F","blood_type":"A-","ward":"Ortho-3","bed":"07",
      "admission_date":ADMISSION_DT.date(),"surgery_date":SURGERY_START.date(),
      "primary_diagnosis":"Distal radius fracture","surgery_type":"ORIF (right wrist)",
      "attending_doctor_id":"D002","primary_nurse_id":"N002",
      "profile_summary":"63F, ORIF wrist, mild HTN.","_profile":"stable"},
-    {"id":"P005","name":"Chen Bo","age":78,"gender":"M","blood_type":"O+","ward":"Ortho-3","bed":"10",
+    {"patient_id":"P005","name":"Chen Bo","age":78,"gender":"M","blood_type":"O+","ward":"Ortho-3","bed":"10",
      "admission_date":ADMISSION_DT.date(),"surgery_date":SURGERY_START.date(),
      "primary_diagnosis":"Femoral neck fracture (right)","surgery_type":"Hemiarthroplasty",
      "attending_doctor_id":"D001","primary_nurse_id":"N003",
      "profile_summary":"78M, hemiarthroplasty, mild CHF.","_profile":"labile"},
-    {"id":"P006","name":"Yang Mei","age":45,"gender":"F","blood_type":"AB+","ward":"Ortho-3","bed":"15",
+    {"patient_id":"P006","name":"Yang Mei","age":45,"gender":"F","blood_type":"AB+","ward":"Ortho-3","bed":"15",
      "admission_date":ADMISSION_DT.date(),"surgery_date":SURGERY_START.date(),
      "primary_diagnosis":"Patella fracture (left)","surgery_type":"Tension band wiring",
      "attending_doctor_id":"D002","primary_nurse_id":"N001",
@@ -152,19 +152,19 @@ def gen_home_meds():
 def gen_surgeries():
     rows = []
     for p in PATIENTS:
-        if p["id"] == "P001":
+        if p["patient_id"] == "P001":
             duration, anesth, blood, comp = 150, "Spinal + sedation", 180, "Uneventful."
             surgeon = "D001"
-        elif p["id"] == "P002":
+        elif p["patient_id"] == "P002":
             duration, anesth, blood, comp = 240, "General", 520, "Anticoagulation reversal extended OR time; haemostasis adequate."
             surgeon = "D001"
-        elif p["id"] == "P003":
+        elif p["patient_id"] == "P003":
             duration, anesth, blood, comp = 110, "Regional", 90, "Uneventful."
             surgeon = "D002"
-        elif p["id"] == "P004":
+        elif p["patient_id"] == "P004":
             duration, anesth, blood, comp = 90, "Regional", 60, "Uneventful."
             surgeon = "D002"
-        elif p["id"] == "P005":
+        elif p["patient_id"] == "P005":
             duration, anesth, blood, comp = 180, "General", 380, "Mild intra-op hypotension, responsive to fluids."
             surgeon = "D001"
         else:
@@ -172,7 +172,7 @@ def gen_surgeries():
             surgeon = "D002"
         ended = SURGERY_START + timedelta(minutes=duration)
         rows.append({
-            "id": f"S{p['id'][1:]}", "patient_id": p["id"],
+            "id": f"S{p['patient_id'][1:]}", "patient_id": p["patient_id"],
             "surgery_type": p["surgery_type"],
             "started_at": SURGERY_START, "ended_at": ended,
             "duration_minutes": duration, "surgeon_id": surgeon,
@@ -542,8 +542,8 @@ def main():
 
     vitals = []
     for p in PATIENTS:
-        if p["id"] in ("P001", "P002"):
-            vitals += gen_vitals_for(p["id"], p["_profile"], p["age"])
+        if p["patient_id"] in ("P001", "P002"):
+            vitals += gen_vitals_for(p["patient_id"], p["_profile"], p["age"])
     write_csv("vitals", vitals)
 
     write_csv("glucose_logs", gen_glucose())

@@ -62,8 +62,8 @@ def _sidebar():
 
     # Patient
     patients = data.list_patients()
-    primary = patients[patients["id"].isin(["P001", "P002"])]
-    patient_label = {row["id"]: f"{row['name']} ({row['id']}) - {row['primary_diagnosis']}"
+    primary = patients[patients["patient_id"].isin(["P001", "P002"])]
+    patient_label = {row["patient_id"]: f"{row['name']} ({row['patient_id']}) - {row['primary_diagnosis']}"
                      for _, row in primary.iterrows()}
     patient_id = st.sidebar.selectbox(
         "Patient",
@@ -193,6 +193,26 @@ def _build_ctx_kwargs(ctx: dict) -> dict:
 
 def _main_panel(ctx: dict):
     st.subheader("Ask the dashboard")
+
+    # Scope banner: tell the user explicitly which patient and actor the
+    # next query will run under. Avoids the "I asked about Li Xiuying but
+    # the sidebar still has Wang Wei selected" surprise.
+    patient_name = data.get_patient(ctx["patient_id"])["name"]
+    scope_note = {
+        "doctor":  f"Asking as **{ctx['actor_label']}** about **{patient_name}** "
+                   f"({ctx['patient_id']}). To switch patients, use the sidebar.",
+        "nurse":   f"Asking as **{ctx['actor_label']}** about **{patient_name}** "
+                   f"({ctx['patient_id']}). Cross-patient ward views are not "
+                   "supported in this demo - pick the patient in the sidebar first.",
+        "patient": f"You are signed in as **{patient_name}**. "
+                   "We will never give a medical opinion - any concern routes "
+                   "straight to a nurse.",
+        "family":  f"Asking as **{ctx['actor_label']}** about **{patient_name}** "
+                   f"({ctx['patient_id']}). Some clinical detail is restricted "
+                   "to the medical team.",
+    }[ctx["role"]]
+    st.info(scope_note)
+
     placeholder = {
         "doctor":  "e.g. How has Wang Wei recovered in the last 24 hours?",
         "nurse":   "e.g. What do I need to do in the next 4 hours?",

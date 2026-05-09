@@ -35,6 +35,28 @@ STATUS_COLOR_MAP = {
 
 
 # ---------------------------------------------------------------- query helper
+_FRIENDLY_PERMISSION_MSG = {
+    "patient": ("This information is part of your medical record and is "
+                "managed by your care team. Please ask the on-shift nurse "
+                "or your doctor."),
+    "family":  ("Some clinical details are kept with the medical team. "
+                "Please ask the doctor or on-shift nurse if you need this "
+                "information."),
+    "nurse":   ("Your role does not have access to this information. "
+                "Please ask the attending physician."),
+    "doctor":  "This query was blocked by a guard rule.",
+}
+
+
+def _friendly_sql_error(err_text: str, role: str) -> str:
+    if "may not query" in err_text or "must filter by patient_id" in err_text:
+        return _FRIENDLY_PERMISSION_MSG.get(role, _FRIENDLY_PERMISSION_MSG["doctor"])
+    if "Binder Error" in err_text:
+        return ("This panel could not load (data layout mismatch). "
+                "Try regenerating the dashboard.")
+    return "This panel could not load."
+
+
 def _run_query(query: str, role_ctx: dict) -> Optional[pd.DataFrame]:
     if not query:
         return None
@@ -46,8 +68,9 @@ def _run_query(query: str, role_ctx: dict) -> Optional[pd.DataFrame]:
             patient_id=role_ctx["patient_id"],
         )
     except data.SqlSafetyError as e:
-        st.warning(f"This panel could not load: {e}")
-        with st.expander("Show the query that was blocked"):
+        st.warning(_friendly_sql_error(str(e), role_ctx["role"]))
+        with st.expander("Why? (technical detail)"):
+            st.caption(str(e))
             st.code(query, language="sql")
         return None
 

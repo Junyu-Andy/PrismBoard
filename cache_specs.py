@@ -79,7 +79,7 @@ def list_cached() -> list[dict]:
 # ---------------------------------------------------------------- builder (offline)
 def _ctx_kwargs_for(prompt: dict, patient: dict, doctor=None, nurse=None,
                     family_relation: str = "relative") -> dict:
-    out = {"patient_id": patient["id"], "patient_name": patient["name"],
+    out = {"patient_id": patient["patient_id"], "patient_name": patient["name"],
            "post_op_day": 2}
     if prompt["role"] == "doctor":
         out.update(actor_name=doctor["name"], department=doctor["department"])

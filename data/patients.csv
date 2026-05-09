@@ -1,4 +1,4 @@
-id,name,age,gender,blood_type,ward,bed,admission_date,surgery_date,primary_diagnosis,surgery_type,attending_doctor_id,primary_nurse_id,profile_summary
+patient_id,name,age,gender,blood_type,ward,bed,admission_date,surgery_date,primary_diagnosis,surgery_type,attending_doctor_id,primary_nurse_id,profile_summary
 P001,Wang Wei,32,M,A+,Ortho-3,12,2026-05-04,2026-05-04,Closed tibial plateau fracture (right),ORIF (right tibial plateau),D001,N001,"32M athlete, healthy baseline; ORIF for tibial plateau fracture, smooth intra-op course; ambulating, expected discharge POD#3."
 P002,Li Xiuying,71,F,B+,Ortho-3,08,2026-05-04,2026-05-04,Femoral neck fracture (left),Total hip arthroplasty (left),D001,N003,"71F with DM2, HTN, AF, prior MI, mild CKD; THA for femoral neck fracture; complex course, ongoing glycaemic and anticoagulation management; discharge POD#7+."
 P003,Zhao Gang,54,M,O+,Ortho-3,05,2026-05-04,2026-05-04,Ankle fracture (left),ORIF (left ankle),D002,N002,"54M, ORIF ankle, uncomplicated."

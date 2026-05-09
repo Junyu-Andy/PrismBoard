@@ -176,7 +176,7 @@ def list_nurses() -> pd.DataFrame:
 
 def get_patient(patient_id: str) -> dict:
     df = get_conn().execute(
-        "SELECT * FROM patients WHERE id = ?", [patient_id]
+        "SELECT * FROM patients WHERE patient_id = ?", [patient_id]
     ).df()
     if df.empty:
         raise KeyError(patient_id)
