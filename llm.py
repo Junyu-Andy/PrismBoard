@@ -18,23 +18,48 @@ MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
 
 # Placeholder strings the LLM sometimes emits when it gets lazy. If any
 # of these appear in the spec we re-prompt once before giving up.
-_PLACEHOLDER_HINTS = (
+_LAZY_SINGLE_TOKENS = {
+    "?", "-", "--", "...", "tbd", "n/a", "na",
+    "unknown", "todo", "placeholder", "pending",
+}
+_LAZY_PHRASES = (
     "query result",
-    "placeholder",
     "your text here",
-    "tbd",
-    "to be determined",
-    "fill in",
     "lorem ipsum",
-    "summary here",
     "summary will appear",
-    "todo",
+    "summary here",
+    "fill in",
+    "to be determined",
 )
 
 
 def _looks_lazy(spec: dict) -> bool:
-    blob = json.dumps(spec, ensure_ascii=False).lower()
-    return any(h in blob for h in _PLACEHOLDER_HINTS)
+    """Return True if any layout component has placeholder content.
+
+    We only check fields the renderer actually displays
+    (config.value / config.content / config.label) and data_query,
+    so the user's intent / reasoning text is not affected.
+    """
+    layout = spec.get("layout") or []
+    for comp in layout:
+        cfg = comp.get("config") or {}
+        for key in ("value", "content", "label"):
+            v = cfg.get(key)
+            if isinstance(v, str):
+                s = v.strip().lower()
+                if s in _LAZY_SINGLE_TOKENS:
+                    return True
+                if any(p in s for p in _LAZY_PHRASES):
+                    return True
+        dq = comp.get("data_query")
+        if isinstance(dq, str) and dq.lower().lstrip().startswith("select '"):
+            # Catches SELECT 'query result' AS msg style placeholder SQL
+            head = dq.lower()
+            if any(p in head for p in (
+                    "'query result'", "'placeholder'", "'tbd'",
+                    "'summary'", "'foo'", "'n/a'")):
+                return True
+    return False
 
 
 # --------------------------------------------------------------------- client

@@ -93,16 +93,40 @@ def _resolve_col(col, df):
     return None
 
 
+_LAZY_VALUES = {"?", "-", "--", "...", "tbd", "n/a", "na",
+                "unknown", "todo", "placeholder", "pending", ""}
+
+
+def _is_lazy_value(v):
+    if v is None:
+        return True
+    if isinstance(v, str) and v.strip().lower() in _LAZY_VALUES:
+        return True
+    try:
+        import pandas as _pd
+        if _pd.isna(v):
+            return True
+    except Exception:
+        pass
+    return False
+
+
 def _render_metric_card(component, df, role_ctx):
     cfg = component.get("config", {})
     label = cfg.get("label") or component.get("title", "Metric")
     value = cfg.get("value")
-    if value is None and df is not None and not df.empty:
-        # Take the first scalar value of the first column.
+    # If the model put a placeholder ("?", "-", "n/a") in config.value,
+    # ignore it and try to derive the value from the SQL instead.
+    if _is_lazy_value(value) and df is not None and not df.empty:
         value = df.iloc[0, 0]
     delta = cfg.get("delta")
     color = STATUS_COLOR_MAP.get(cfg.get("status_color"), None)
-    st.metric(label=label, value=value if value is not None else "-",
+    if _is_lazy_value(value):
+        # Truly nothing to show - say so explicitly instead of showing "?".
+        st.metric(label=label, value="-")
+        st.caption("No data for this period.")
+        return
+    st.metric(label=label, value=value,
               delta=delta if delta is not None else None)
     if color:
         st.markdown(
@@ -194,10 +218,10 @@ def _render_text_summary(component, df, role_ctx):
     import re as _re
     cfg = component.get("config", {})
     body = cfg.get("content")
-    if not body and df is not None and not df.empty:
+    if _is_lazy_value(body) and df is not None and not df.empty:
         body = str(df.iloc[0, 0])
-    if not body:
-        st.markdown("_(no content)_")
+    if _is_lazy_value(body):
+        st.caption("No content available for this panel.")
         return
     # Strip leading markdown header markers so the LLM cannot blow up the
     # font by writing "## Foo" inside a panel that already has a title.

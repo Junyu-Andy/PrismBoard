@@ -133,12 +133,21 @@ Examples:
 
 # Concrete-content rule (CRITICAL - this is the most common failure)
 Every panel must show real information drawn from the seeded tables.
-Forbidden lazy patterns:
+Forbidden lazy patterns - the renderer flags every one of these:
   - SELECT 'query result' AS msg
   - SELECT 'TBD' AS info
   - config.content = "Summary will appear here"
   - text_summary with vague filler ("everything is fine")
-  - metric_card with config.value = "query result"
+  - metric_card with config.value = "?", "-", "n/a", "TBD", "unknown",
+    "..." or any short placeholder string
+
+For metric_card you have TWO valid options, never both:
+  (a) Provide config.value with the actual computed value (e.g. 50,
+      "92%", "37.4 C") AND set data_query to "" (empty).
+  (b) Leave config.value out entirely AND write a real SQL query in
+      data_query that returns ONE scalar value as the first column.
+Mixing the two - putting "?" in config.value and a query that the
+model never validated - is the laziest pattern and will be rejected.
 
 Good text_summary content references concrete facts derivable from
 the data:
