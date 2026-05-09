@@ -96,19 +96,32 @@ class SqlSafetyError(Exception):
 
 
 _WORD = re.compile(r"\b([A-Z]+)\b")
+# Matches a single-quoted string literal, with SQL's '' as escaped quote.
+_STRING_LITERAL = re.compile(r"'(?:[^']|'')*'")
+
+
+def _strip_literals(query: str) -> str:
+    """Remove single-quoted SQL string literals before structural checks.
+
+    Without this, a separator like STRING_AGG(..., '; ') triggers the
+    'multiple statement' guard, and a literal like 'INSERT timestamp'
+    triggers the FORBIDDEN keyword guard.
+    """
+    return _STRING_LITERAL.sub("''", query)
 
 
 def _statement_is_select_only(query: str) -> bool:
-    """Reject anything other than a single SELECT statement."""
+    """Reject anything other than a single SELECT (or CTE) statement."""
     stripped = query.strip().rstrip(";").strip()
-    if ";" in stripped:
+    sanitised = _strip_literals(stripped)
+    if ";" in sanitised:
         return False
     head = stripped.split(None, 1)[0].upper() if stripped else ""
     return head in ("SELECT", "WITH")
 
 
 def _contains_forbidden(query: str) -> Optional[str]:
-    upper = query.upper()
+    upper = _strip_literals(query).upper()
     for kw in FORBIDDEN_KEYWORDS:
         if re.search(rf"\b{kw}\b", upper):
             return kw

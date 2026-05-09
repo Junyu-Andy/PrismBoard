@@ -31,17 +31,35 @@ surgeries(id, patient_id, surgery_type, started_at, ended_at,
 vitals(patient_id, recorded_at, hr, bp_sys, bp_dia, spo2, rr, temp_c,
        pain_score, urine_output_ml, recorded_by_nurse_id)
 glucose_logs(patient_id, recorded_at, value_mmol, context)
+   -- context enum: 'fasting' | 'post_breakfast' | 'pre_lunch'
+                   | 'post_lunch' | 'pre_dinner' | 'post_dinner'
+                   | 'bedtime' | 'between_meals'
 medications(patient_id, scheduled_at, drug_name, dose, route, status,
             administered_at, administered_by)
+   -- status enum: 'scheduled' | 'administered' | 'refused' | 'held'
+   --   (there is NO 'completed' or 'missed' value - 'refused' and
+   --    'held' together are the missed-or-not-given category.)
+   -- 'administered_at' is non-null only when status='administered'.
 lab_results(patient_id, sampled_at, panel, test_name, value, unit,
             reference_range, abnormal_flag)
+   -- abnormal_flag values: '' (normal) | 'H' (high) | 'L' (low)
 care_tasks(patient_id, scheduled_at, task_type, description, priority,
            status, completed_at, completed_by_nurse_id, shift_tag)
+   -- status enum: 'scheduled' | 'in_progress' | 'completed'
+   -- task_type enum: 'vitals' | 'dressing' | 'mobility' | 'glucose'
+                    | 'meal' | 'pain_assess' | 'family_facilitate'
+                    | 'mobilization_milestone'
+   -- shift_tag enum: 'morning' | 'afternoon' | 'night'
+   -- priority enum: 'routine' | 'high'
 doctor_notes(patient_id, written_at, doctor_id, note_type, content)
+   -- note_type enum: 'rounds' | 'order' | 'consult' | 'discharge_planning'
 family_communications(patient_id, recorded_at, family_name, relationship,
                       channel, summary)
+   -- channel enum: 'visit' | 'phone' | 'message'
 doctors(id, name, department, title)
 nurses(id, name, level, current_shift)
+   -- current_shift enum: 'morning' | 'afternoon' | 'night'
+   -- level enum: 'junior' | 'senior' | 'charge'
 
 # Allowed render components (do not invent new types)
 - metric_card        config: {{label, value, delta?, status_color?}}  (status_color: green/yellow/red)
